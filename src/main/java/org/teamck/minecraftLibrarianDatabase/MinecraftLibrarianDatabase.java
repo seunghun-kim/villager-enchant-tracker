@@ -15,7 +15,7 @@ public final class MinecraftLibrarianDatabase extends JavaPlugin {
             this.descManager = new DescriptionManager(this);
 
             // Register command
-            LibrarianDBCommand command = new LibrarianDBCommand(db, descManager);
+            LibrarianDBCommand command = new LibrarianDBCommand(db, descManager, this);
             getCommand("librariandb").setExecutor(command);
             getCommand("librariandb").setTabCompleter(command);
         } catch (SQLException e) {

@@ -1,0 +1,21 @@
+# 파티클 설정
+particles:
+  # 파티클 종류, 높이, 개수
+  - type: "HAPPY_VILLAGER"
+    height: 10
+    count: 10
+  - type: "ENCHANT"
+    height: 10
+    count: 10
+  - type: "END_ROD"
+    height: 10
+    count: 5
+  - type: "DRAGON_BREATH"
+    height: 10
+    count: 5
+
+# 파티클 지속 시간 (초)
+particle-duration: 30
+
+# 파티클 생성 간격 (초)
+particle-interval: 1 

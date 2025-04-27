@@ -20,7 +20,7 @@ public class LibrarianDBPlugin extends JavaPlugin {
         }
 
         descManager = new DescriptionManager(this);
-        getCommand("librariandb").setExecutor(new LibrarianDBCommand(database, descManager));
+        getCommand("librariandb").setExecutor(new LibrarianDBCommand(database, descManager, this));
         getLogger().info("LibrarianDB 플러그인이 활성화되었습니다.");
     }
 

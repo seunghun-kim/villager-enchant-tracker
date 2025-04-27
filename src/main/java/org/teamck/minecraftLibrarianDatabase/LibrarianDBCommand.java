@@ -10,21 +10,56 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
     private final Database db;
     private final DescriptionManager descManager;
+    private final JavaPlugin plugin;
     private static final List<String> SUBCOMMANDS = Arrays.asList("create", "add-villager", "search", "nearby", "list", "delete", "update");
 
-    public LibrarianDBCommand(Database db, DescriptionManager descManager) {
+    public LibrarianDBCommand(Database db, DescriptionManager descManager, JavaPlugin plugin) {
         this.db = db;
         this.descManager = descManager;
+        this.plugin = plugin;
+    }
+
+    private void spawnParticles(Location loc) {
+        List<Map<?, ?>> particleConfigs = plugin.getConfig().getMapList("particles");
+        int duration = plugin.getConfig().getInt("particle-duration", 30);
+        int interval = plugin.getConfig().getInt("particle-interval", 1);
+
+        for (int i = 0; i < duration; i++) {
+            final int tick = i;
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                for (Map<?, ?> particleConfig : particleConfigs) {
+                    String type = (String) particleConfig.get("type");
+                    int height = (int) particleConfig.get("height");
+                    int count = (int) particleConfig.get("count");
+
+                    try {
+                        Particle particle = Particle.valueOf(type);
+                        for (int y = 0; y <= height; y++) {
+                            Location particleLoc = loc.clone().add(0, y, 0);
+                            double offsetX = (Math.random() - 0.5) * 0.5;
+                            double offsetY = (Math.random() - 0.5) * 0.5;
+                            double offsetZ = (Math.random() - 0.5) * 0.5;
+                            double speed = Math.random() * 0.1;
+                            loc.getWorld().spawnParticle(particle, particleLoc, count, offsetX, offsetY, offsetZ, speed);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        plugin.getLogger().warning("잘못된 파티클 타입: " + type);
+                    }
+                }
+            }, tick * (interval * 20L));
+        }
     }
 
     @Override
@@ -142,7 +177,8 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(String.format("[%s %d] %d원에 거래 가능\n(%d, %d, %d) %s",
                     localName, trade.getLevel(), trade.getPrice(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
                     trade.getDescription()));
-            loc.getWorld().spawnParticle(Particle.FIREWORK, loc, 50, 1, 1, 1, 0);
+            
+            spawnParticles(loc);
         }
     }
 
@@ -166,7 +202,8 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             Location loc = trade.getLocation();
             player.sendMessage(String.format("[%s %d] %d원에 거래 가능\n(%d, %d, %d)",
                     localName, trade.getLevel(), trade.getPrice(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-            loc.getWorld().spawnParticle(Particle.FIREWORK, loc, 50, 1, 1, 1, 0);
+            
+            spawnParticles(loc);
         }
     }
 
@@ -251,8 +288,14 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         }
 
         switch (args[0].toLowerCase()) {
-            case "create" -> {
+            case "create", "update" -> {
                 if (args.length == 2) {
+                    if (args[0].equalsIgnoreCase("update")) {
+                        return db.listTrades().stream()
+                                .map(trade -> String.valueOf(trade.getId()))
+                                .filter(id -> id.startsWith(args[1]))
+                                .collect(Collectors.toList());
+                    }
                     return EnchantManager.getAllEnchantIds().stream()
                             .filter(id -> id.toLowerCase().startsWith(args[1].toLowerCase()))
                             .collect(Collectors.toList());
@@ -288,11 +331,10 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
                     return List.of("10", "20", "30", "40", "50");
                 }
             }
-            case "delete", "update" -> {
+            case "delete" -> {
                 if (args.length == 2) {
                     return db.listTrades().stream()
                             .map(trade -> String.valueOf(trade.getId()))
-                            .filter(id -> id.startsWith(args[1]))
                             .collect(Collectors.toList());
                 }
             }
