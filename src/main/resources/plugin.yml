@@ -1,0 +1,12 @@
+name: LibrarianDB
+version: 1.0
+main: org.teamck.minecraftLibrarianDatabase.MinecraftLibrarianDatabase
+api-version: '1.21'
+commands:
+  librariandb:
+    description: LibrarianDB management command
+    usage: /<command> [create|add-villager|search|nearby|list|delete|update]
+permissions:
+  librariandb.admin:
+    description: Allows managing LibrarianDB
+    default: op
