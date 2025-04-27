@@ -1,6 +1,10 @@
-# 파티클 설정
+# Language settings
+language:
+  chat: "en"   # Chat output language (en, ko)
+
+# Particle settings
 particles:
-  # 파티클 종류, 높이, 개수
+  # Particle type, height, count
   - type: "HAPPY_VILLAGER"
     height: 10
     count: 10
@@ -14,8 +18,8 @@ particles:
     height: 10
     count: 5
 
-# 파티클 지속 시간 (초)
+# Particle duration (seconds)
 particle-duration: 30
 
-# 파티클 생성 간격 (초)
-particle-interval: 1 
+# Particle spawn interval (seconds)
+particle-interval: 1

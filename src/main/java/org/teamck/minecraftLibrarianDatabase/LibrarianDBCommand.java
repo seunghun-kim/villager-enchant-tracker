@@ -21,14 +21,16 @@ import java.util.stream.Collectors;
 
 public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
     private final Database db;
-    private final DescriptionManager descManager;
+    private final MessageManager messageManager;
     private final JavaPlugin plugin;
+    private final ParticleManager particleManager;
     private static final List<String> SUBCOMMANDS = Arrays.asList("create", "add-villager", "search", "nearby", "list", "delete", "update");
 
-    public LibrarianDBCommand(Database db, DescriptionManager descManager, JavaPlugin plugin) {
+    public LibrarianDBCommand(Database db, MessageManager messageManager, JavaPlugin plugin) {
         this.db = db;
-        this.descManager = descManager;
+        this.messageManager = messageManager;
         this.plugin = plugin;
+        this.particleManager = new ParticleManager(plugin);
     }
 
     private void spawnParticles(Location loc) {
@@ -55,7 +57,7 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
                             loc.getWorld().spawnParticle(particle, particleLoc, count, offsetX, offsetY, offsetZ, speed);
                         }
                     } catch (IllegalArgumentException e) {
-                        plugin.getLogger().warning("잘못된 파티클 타입: " + type);
+                        plugin.getLogger().warning("Wrong Particle Type: " + type);
                     }
                 }
             }, tick * (interval * 20L));
@@ -65,12 +67,12 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player) || !sender.hasPermission("librariandb.admin")) {
-            sender.sendMessage("권한이 없습니다.");
+            sender.sendMessage(messageManager.getChatMessage("no_permission"));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage("/librariandb [create|add-villager|search|nearby|list|delete|update]");
+            sender.sendMessage(messageManager.getChatMessage("usage"));
             return true;
         }
 
@@ -82,21 +84,21 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             case "list" -> handleList(player, args);
             case "delete" -> handleDelete(player, args);
             case "update" -> handleUpdate(player, args);
-            default -> sender.sendMessage("잘못된 서브커맨드입니다.");
+            default -> sender.sendMessage(messageManager.getChatMessage("invalid_subcommand"));
         }
         return true;
     }
 
     private void handleCreate(Player player, String[] args) {
         if (args.length < 6) {
-            player.sendMessage("사용법: /librariandb create <enchant> <level> <price> <x> <y> <z> [description]");
+            player.sendMessage(messageManager.getChatMessage("create_usage"));
             return;
         }
 
         String enchantId = args[1];
         Enchantment enchant = EnchantManager.getEnchant(enchantId);
         if (enchant == null) {
-            player.sendMessage("잘못된 인챈트 ID입니다.");
+            player.sendMessage(messageManager.getChatMessage("invalid_enchant"));
             return;
         }
 
@@ -104,11 +106,11 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         try {
             level = Integer.parseInt(args[2]);
             if (!EnchantManager.isValidLevel(enchant, level)) {
-                player.sendMessage("레벨은 1에서 " + enchant.getMaxLevel() + " 사이여야 합니다.");
+                player.sendMessage(messageManager.format("invalid_level", enchant.getMaxLevel()));
                 return;
             }
         } catch (NumberFormatException e) {
-            player.sendMessage("레벨은 숫자여야 합니다.");
+            player.sendMessage(messageManager.getChatMessage("level_must_be_number"));
             return;
         }
 
@@ -116,7 +118,7 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         try {
             price = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
-            player.sendMessage("가격은 숫자여야 합니다.");
+            player.sendMessage(messageManager.getChatMessage("price_must_be_number"));
             return;
         }
 
@@ -127,18 +129,18 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             double z = args[6].equals("~") ? player.getLocation().getZ() : Double.parseDouble(args[6]);
             location = new Location(player.getWorld(), x, y, z);
         } catch (NumberFormatException e) {
-            player.sendMessage("좌표는 숫자 또는 ~이어야 합니다.");
+            player.sendMessage(messageManager.getChatMessage("coordinates_must_be_number"));
             return;
         }
 
         String description = String.join(" ", Arrays.copyOfRange(args, 7, args.length));
         db.createTrade(enchantId, level, price, location, description);
-        player.sendMessage("거래가 등록되었습니다.");
+        player.sendMessage(messageManager.getChatMessage("trade_created"));
     }
 
     private void handleAddVillager(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage("사용법: /librariandb add-villager [description]");
+            player.sendMessage(messageManager.getChatMessage("add_villager_usage"));
             return;
         }
 
@@ -148,43 +150,44 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
                 .orElse(null);
 
         if (!(target instanceof Villager villager)) {
-            player.sendMessage("근처에 주민이 없습니다.");
+            player.sendMessage(messageManager.getChatMessage("no_villager_nearby"));
             return;
         }
 
         String description = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         db.addVillagerTrades(villager, description);
-        player.sendMessage("주민의 인챈트 거래가 등록되었습니다.");
+        player.sendMessage(messageManager.getChatMessage("villager_trades_registered"));
     }
 
     private void handleSearch(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage("사용법: /librariandb search <enchant>");
+            player.sendMessage(messageManager.getChatMessage("search_usage"));
             return;
         }
 
         String enchantId = args[1];
         List<Trade> trades = db.searchTrades(enchantId);
         if (trades.isEmpty()) {
-            player.sendMessage("해당 인챈트의 거래가 없습니다.");
+            player.sendMessage(messageManager.getChatMessage("no_trades_found"));
             return;
         }
 
         String lang = player.getLocale();
         for (Trade trade : trades) {
-            String localName = descManager.getLocalName(enchantId, lang);
+            String localName = messageManager.getEnchantName(enchantId, lang);
             Location loc = trade.getLocation();
-            player.sendMessage(String.format("[%s %d] %d원에 거래 가능\n(%d, %d, %d) %s",
-                    localName, trade.getLevel(), trade.getPrice(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
+            player.sendMessage(messageManager.format("trade_info",
+                    localName, trade.getLevel(), trade.getPrice(),
+                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
                     trade.getDescription()));
             
-            spawnParticles(loc);
+            particleManager.spawnParticles(loc);
         }
     }
 
     private void handleNearby(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage("사용법: /librariandb nearby <enchant> [radius]");
+            player.sendMessage(messageManager.getChatMessage("nearby_usage"));
             return;
         }
 
@@ -192,57 +195,59 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         double radius = args.length > 2 ? Double.parseDouble(args[2]) : 50.0;
         List<Trade> trades = VillagerTradeSearcher.searchNearbyVillagerTrades(player, enchantId, radius);
         if (trades.isEmpty()) {
-            player.sendMessage("근처 주민에게 해당 인챈트 거래가 없습니다.");
+            player.sendMessage(messageManager.getChatMessage("no_nearby_trades"));
             return;
         }
 
         String lang = player.getLocale();
         for (Trade trade : trades) {
-            String localName = descManager.getLocalName(enchantId, lang);
+            String localName = messageManager.getEnchantName(enchantId, lang);
             Location loc = trade.getLocation();
-            player.sendMessage(String.format("[%s %d] %d원에 거래 가능\n(%d, %d, %d)",
-                    localName, trade.getLevel(), trade.getPrice(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            player.sendMessage(messageManager.format("nearby_trade_info",
+                    localName, trade.getLevel(), trade.getPrice(),
+                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
             
-            spawnParticles(loc);
+            particleManager.spawnParticles(loc);
         }
     }
 
     private void handleList(Player player, String[] args) {
         List<Trade> trades = db.listTrades();
         if (trades.isEmpty()) {
-            player.sendMessage("등록된 거래가 없습니다.");
+            player.sendMessage(messageManager.getChatMessage("no_trades"));
             return;
         }
 
         String lang = player.getLocale();
-        player.sendMessage("=== 등록된 거래 목록 ===");
+        player.sendMessage(messageManager.getChatMessage("trade_list_header"));
         for (Trade trade : trades) {
-            String localName = descManager.getLocalName(trade.getEnchantId(), lang);
+            String localName = messageManager.getEnchantName(trade.getEnchantId(), lang);
             Location loc = trade.getLocation();
-            player.sendMessage(String.format("ID: %d, [%s %d] %d원, (%d, %d, %d) %s",
+            player.sendMessage(messageManager.format("trade_list_entry",
                     trade.getId(), localName, trade.getLevel(), trade.getPrice(),
-                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), trade.getDescription()));
+                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
+                    trade.getDescription()));
         }
     }
 
     private void handleDelete(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage("사용법: /librariandb delete <id>");
+            player.sendMessage(messageManager.getChatMessage("delete_usage"));
             return;
         }
 
         try {
             int id = Integer.parseInt(args[1]);
             db.deleteTrade(id);
-            player.sendMessage("거래가 삭제되었습니다.");
+            player.sendMessage(messageManager.getChatMessage("trade_deleted"));
         } catch (NumberFormatException e) {
-            player.sendMessage("ID는 숫자여야 합니다.");
+            player.sendMessage(messageManager.getChatMessage("id_must_be_number"));
         }
     }
 
     private void handleUpdate(Player player, String[] args) {
         if (args.length < 7) {
-            player.sendMessage("사용법: /librariandb update <id> <enchant> <level> <price> <x> <y> <z> [description]");
+            player.sendMessage(messageManager.getChatMessage("update_usage"));
             return;
         }
 
@@ -251,13 +256,13 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             String enchantId = args[2];
             Enchantment enchant = EnchantManager.getEnchant(enchantId);
             if (enchant == null) {
-                player.sendMessage("잘못된 인챈트 ID입니다.");
+                player.sendMessage(messageManager.getChatMessage("invalid_enchant"));
                 return;
             }
 
             int level = Integer.parseInt(args[3]);
             if (!EnchantManager.isValidLevel(enchant, level)) {
-                player.sendMessage("레벨은 1에서 " + enchant.getMaxLevel() + " 사이여야 합니다.");
+                player.sendMessage(messageManager.format("invalid_level", enchant.getMaxLevel()));
                 return;
             }
 
@@ -269,9 +274,9 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             String description = String.join(" ", Arrays.copyOfRange(args, 8, args.length));
 
             db.updateTrade(id, enchantId, level, price, location, description);
-            player.sendMessage("거래가 수정되었습니다.");
+            player.sendMessage(messageManager.getChatMessage("trade_updated"));
         } catch (NumberFormatException e) {
-            player.sendMessage("숫자 형식이 잘못되었습니다.");
+            player.sendMessage(messageManager.getChatMessage("invalid_number_format"));
         }
     }
 

@@ -1,0 +1,85 @@
+# General messages
+no_permission: "권한이 없습니다."
+invalid_subcommand: "잘못된 서브커맨드입니다."
+usage: "사용법: /librariandb [create|add-villager|search|nearby|list|delete|update]"
+
+# Create command
+create_usage: "사용법: /librariandb create <enchant> <level> <price> <x> <y> <z> [description]"
+invalid_enchant: "잘못된 인챈트 ID입니다."
+invalid_level: "레벨은 1에서 %d 사이여야 합니다."
+level_must_be_number: "레벨은 숫자여야 합니다."
+price_must_be_number: "가격은 숫자여야 합니다."
+coordinates_must_be_number: "좌표는 숫자 또는 ~이어야 합니다."
+trade_created: "거래가 등록되었습니다."
+
+# Add-villager command
+add_villager_usage: "사용법: /librariandb add-villager [description]"
+no_villager_nearby: "근처에 주민이 없습니다."
+villager_trades_registered: "주민의 인챈트 거래가 등록되었습니다."
+
+# Search command
+search_usage: "사용법: /librariandb search <enchant>"
+no_trades_found: "해당 인챈트의 거래가 없습니다."
+trade_info: "[%s %d] %d원에 거래 가능\n(%d, %d, %d) %s"
+
+# Nearby command
+nearby_usage: "사용법: /librariandb nearby <enchant> [radius]"
+no_nearby_trades: "근처 주민에게 해당 인챈트 거래가 없습니다."
+nearby_trade_info: "[%s %d] %d원에 거래 가능\n(%d, %d, %d)"
+
+# List command
+no_trades: "등록된 거래가 없습니다."
+trade_list_header: "=== 등록된 거래 목록 ==="
+trade_list_entry: "ID: %d, [%s %d] %d원, (%d, %d, %d) %s"
+
+# Delete command
+delete_usage: "사용법: /librariandb delete <id>"
+id_must_be_number: "ID는 숫자여야 합니다."
+trade_deleted: "거래가 삭제되었습니다."
+
+# Update command
+update_usage: "사용법: /librariandb update <id> <enchant> <level> <price> <x> <y> <z> [description]"
+invalid_number_format: "숫자 형식이 잘못되었습니다."
+trade_updated: "거래가 수정되었습니다."
+
+# Enchant names
+enchantments:
+  protection: "보호"
+  fire_protection: "화염 보호"
+  feather_falling: "가벼운 착지"
+  blast_protection: "폭발 보호"
+  projectile_protection: "발사체 보호"
+  respiration: "호흡"
+  aqua_affinity: "친수성"
+  thorns: "가시"
+  depth_strider: "물갈퀴"
+  frost_walker: "차가운 걸음"
+  binding_curse: "구속의 저주"
+  sharpness: "날카로움"
+  smite: "강타"
+  bane_of_arthropods: "살충"
+  knockback: "밀치기"
+  fire_aspect: "발화"
+  looting: "약탈"
+  sweeping: "휩쓸기"
+  efficiency: "효율"
+  silk_touch: "섬세한 손길"
+  unbreaking: "내구성"
+  fortune: "행운"
+  power: "힘"
+  punch: "밀어내기"
+  flame: "화염"
+  infinity: "무한"
+  luck_of_the_sea: "바다의 행운"
+  lure: "미끼"
+  loyalty: "충성"
+  impaling: "찌르기"
+  riptide: "급류"
+  channeling: "집전"
+  multishot: "다중 발사"
+  quick_charge: "빠른 장전"
+  piercing: "관통"
+  mending: "수선"
+  vanishing_curse: "소멸의 저주"
+  soul_speed: "영혼 가속"
+  swift_sneak: "신속한 잠행" 

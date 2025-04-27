@@ -5,17 +5,17 @@ import java.sql.SQLException;
 
 public final class MinecraftLibrarianDatabase extends JavaPlugin {
     private Database db;
-    private DescriptionManager descManager;
+    private MessageManager messageManager;
 
     @Override
     public void onEnable() {
         try {
-            // Initialize database and description manager
+            // Initialize database and message manager
             this.db = new SQLiteDatabase(this);
-            this.descManager = new DescriptionManager(this);
+            this.messageManager = new MessageManager(this);
 
             // Register command
-            LibrarianDBCommand command = new LibrarianDBCommand(db, descManager, this);
+            LibrarianDBCommand command = new LibrarianDBCommand(db, messageManager, this);
             getCommand("librariandb").setExecutor(command);
             getCommand("librariandb").setTabCompleter(command);
         } catch (SQLException e) {

@@ -1,0 +1,89 @@
+en:
+  # General messages
+  no_permission: "You don't have permission to use this command."
+  invalid_subcommand: "Invalid subcommand."
+  usage: "Usage: /librariandb [create|add-villager|search|nearby|list|delete|update]"
+  
+  # Create command
+  create_usage: "Usage: /librariandb create <enchant> <level> <price> <x> <y> <z> [description]"
+  invalid_enchant: "Invalid enchant ID."
+  invalid_level: "Level must be between 1 and %d."
+  level_must_be_number: "Level must be a number."
+  price_must_be_number: "Price must be a number."
+  coordinates_must_be_number: "Coordinates must be numbers or ~."
+  trade_created: "Trade has been registered."
+  
+  # Add-villager command
+  add_villager_usage: "Usage: /librariandb add-villager [description]"
+  no_villager_nearby: "No villager nearby."
+  villager_trades_registered: "Villager's enchant trades have been registered."
+  
+  # Search command
+  search_usage: "Usage: /librariandb search <enchant>"
+  no_trades_found: "No trades found for this enchant."
+  trade_info: "[%s %d] Available for %d emeralds\n(%d, %d, %d) %s"
+  
+  # Nearby command
+  nearby_usage: "Usage: /librariandb nearby <enchant> [radius]"
+  no_nearby_trades: "No nearby villager has this enchant trade."
+  nearby_trade_info: "[%s %d] Available for %d emeralds\n(%d, %d, %d)"
+  
+  # List command
+  no_trades: "No trades registered."
+  trade_list_header: "=== Registered Trades ==="
+  trade_list_entry: "ID: %d, [%s %d] %d emeralds, (%d, %d, %d) %s"
+  
+  # Delete command
+  delete_usage: "Usage: /librariandb delete <id>"
+  id_must_be_number: "ID must be a number."
+  trade_deleted: "Trade has been deleted."
+  
+  # Update command
+  update_usage: "Usage: /librariandb update <id> <enchant> <level> <price> <x> <y> <z> [description]"
+  invalid_number_format: "Invalid number format."
+  trade_updated: "Trade has been updated."
+
+ko:
+  # General messages
+  no_permission: "권한이 없습니다."
+  invalid_subcommand: "잘못된 서브커맨드입니다."
+  usage: "사용법: /librariandb [create|add-villager|search|nearby|list|delete|update]"
+  
+  # Create command
+  create_usage: "사용법: /librariandb create <enchant> <level> <price> <x> <y> <z> [description]"
+  invalid_enchant: "잘못된 인챈트 ID입니다."
+  invalid_level: "레벨은 1에서 %d 사이여야 합니다."
+  level_must_be_number: "레벨은 숫자여야 합니다."
+  price_must_be_number: "가격은 숫자여야 합니다."
+  coordinates_must_be_number: "좌표는 숫자 또는 ~이어야 합니다."
+  trade_created: "거래가 등록되었습니다."
+  
+  # Add-villager command
+  add_villager_usage: "사용법: /librariandb add-villager [description]"
+  no_villager_nearby: "근처에 주민이 없습니다."
+  villager_trades_registered: "주민의 인챈트 거래가 등록되었습니다."
+  
+  # Search command
+  search_usage: "사용법: /librariandb search <enchant>"
+  no_trades_found: "해당 인챈트의 거래가 없습니다."
+  trade_info: "[%s %d] %d원에 거래 가능\n(%d, %d, %d) %s"
+  
+  # Nearby command
+  nearby_usage: "사용법: /librariandb nearby <enchant> [radius]"
+  no_nearby_trades: "근처 주민에게 해당 인챈트 거래가 없습니다."
+  nearby_trade_info: "[%s %d] %d원에 거래 가능\n(%d, %d, %d)"
+  
+  # List command
+  no_trades: "등록된 거래가 없습니다."
+  trade_list_header: "=== 등록된 거래 목록 ==="
+  trade_list_entry: "ID: %d, [%s %d] %d원, (%d, %d, %d) %s"
+  
+  # Delete command
+  delete_usage: "사용법: /librariandb delete <id>"
+  id_must_be_number: "ID는 숫자여야 합니다."
+  trade_deleted: "거래가 삭제되었습니다."
+  
+  # Update command
+  update_usage: "사용법: /librariandb update <id> <enchant> <level> <price> <x> <y> <z> [description]"
+  invalid_number_format: "숫자 형식이 잘못되었습니다."
+  trade_updated: "거래가 수정되었습니다." 
