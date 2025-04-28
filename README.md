@@ -1,6 +1,8 @@
-# Minecraft Librarian Database
+# Minecraft Villager Enchant Tracker
 
 A Minecraft plugin for managing and tracking librarian villager enchantment trades.
+
+https://github.com/user-attachments/assets/4098bd03-362b-4079-b558-4b7bf99ae9cc
 
 ## Features
 
