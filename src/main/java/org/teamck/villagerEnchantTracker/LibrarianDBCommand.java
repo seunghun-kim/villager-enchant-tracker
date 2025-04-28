@@ -37,28 +37,6 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         this.particleManager = new ParticleManager(plugin);
     }
 
-    private String resolveEnchantId(String searchTerm, String language) {
-        // First try to find enchantment by localized name
-        String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, language);
-        
-        // If not found by localized name, try as enchantment ID
-        if (enchantId == null) {
-            enchantId = searchTerm;
-            // Remove enchantments. prefix if present
-            if (enchantId.startsWith("enchantments.")) {
-                enchantId = enchantId.substring("enchantments.".length());
-            }
-            if (!enchantId.startsWith("minecraft:")) {
-                enchantId = "minecraft:" + enchantId;
-            }
-            if (EnchantManager.getEnchant(enchantId) == null) {
-                return null;
-            }
-        }
-        
-        return enchantId;
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player) || !sender.hasPermission("villagerenchanttracker.admin")) {
@@ -114,8 +92,8 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        String searchTerm = String.join(" ", args);
-        String enchantId = resolveEnchantId(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
+        String searchTerm = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
         
         if (enchantId == null) {
             player.sendMessage(messageManager.getChatMessage("invalid_enchant"));
@@ -195,8 +173,12 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         try {
             int id = Integer.parseInt(args[1]);
             String description = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-            db.updateTradeDescription(id, description);
-            player.sendMessage(messageManager.getChatMessage("description_updated"));
+            boolean success = db.updateTradeDescription(id, description);
+            if (success) {
+                player.sendMessage(messageManager.getChatMessage("description_updated"));
+            } else {
+                player.sendMessage(messageManager.getChatMessage("trade_not_found"));
+            }
         } catch (NumberFormatException e) {
             player.sendMessage(messageManager.getChatMessage("id_must_be_number"));
         }

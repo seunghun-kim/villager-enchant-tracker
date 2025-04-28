@@ -36,6 +36,7 @@ trade_deleted: "§aTrade has been deleted."
 # Edit description command
 edit_description_usage: "§eUsage: /librariandb edit-description <id> <description>"
 description_updated: "§aTrade description has been updated."
+trade_not_found: "§cTrade not found."
 
 # Enchant names
 enchantments:

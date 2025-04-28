@@ -36,6 +36,7 @@ trade_deleted: "§a거래가 삭제되었습니다."
 # Edit description command
 edit_description_usage: "§e사용법: /librariandb edit-description <id> <description>"
 description_updated: "§a거래 설명이 수정되었습니다."
+trade_not_found: "§c거래를 찾을 수 없습니다."
 
 # Enchant names
 enchantments:

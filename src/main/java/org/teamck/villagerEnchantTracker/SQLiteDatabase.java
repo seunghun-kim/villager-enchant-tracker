@@ -125,14 +125,16 @@ public class SQLiteDatabase implements Database {
     }
     
     @Override
-    public void updateTradeDescription(int id, String description) {
+    public boolean updateTradeDescription(int id, String description) {
         try (PreparedStatement stmt = connection.prepareStatement(
                 "UPDATE Trades SET description = ? WHERE id = ?")) {
             stmt.setString(1, description);
             stmt.setInt(2, id);
-            stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 } 

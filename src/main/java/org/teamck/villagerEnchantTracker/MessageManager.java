@@ -88,7 +88,7 @@ public class MessageManager {
     public String getEnchantIdFromLocalName(String localName, String language) {
         plugin.getLogger().info("Searching for enchantment ID for name: " + localName + " in language: " + language);
         
-        // Extract base language code (e.g., 'ko' from 'ko_kr')
+        // First try to find enchantment by localized name
         String baseLanguage = getBaseLanguageCode(language);
         YamlConfiguration config = messages.get(baseLanguage);
         if (config == null) {
@@ -109,6 +109,20 @@ public class MessageManager {
             }
         } else {
             plugin.getLogger().info("No enchantments section found in config");
+        }
+        
+        // If not found by localized name, try as enchantment ID
+        String enchantId = localName;
+        // Remove enchantments. prefix if present
+        if (enchantId.startsWith("enchantments.")) {
+            enchantId = enchantId.substring("enchantments.".length());
+        }
+        if (!enchantId.startsWith("minecraft:")) {
+            enchantId = "minecraft:" + enchantId;
+        }
+        if (EnchantManager.getEnchant(enchantId) != null) {
+            plugin.getLogger().info("Found valid enchantment ID: " + enchantId);
+            return enchantId;
         }
         
         plugin.getLogger().info("No matching enchantment found");

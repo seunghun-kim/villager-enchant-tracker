@@ -47,7 +47,7 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
         }
 
         String searchTerm = String.join(" ", args);
-        String enchantId = resolveEnchantId(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
+        String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
         
         if (enchantId == null) {
             player.sendMessage(messageManager.getChatMessage("invalid_enchant"));
@@ -82,28 +82,6 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
             particleManager.drawLine(player.getLocation(), loc, player, false);
         }
         return true;
-    }
-
-    private String resolveEnchantId(String searchTerm, String language) {
-        // First try to find enchantment by localized name
-        String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, language);
-        
-        // If not found by localized name, try as enchantment ID
-        if (enchantId == null) {
-            enchantId = searchTerm;
-            // Remove enchantments. prefix if present
-            if (enchantId.startsWith("enchantments.")) {
-                enchantId = enchantId.substring("enchantments.".length());
-            }
-            if (!enchantId.startsWith("minecraft:")) {
-                enchantId = "minecraft:" + enchantId;
-            }
-            if (EnchantManager.getEnchant(enchantId) == null) {
-                return null;
-            }
-        }
-        
-        return enchantId;
     }
 
     @Override

@@ -12,5 +12,5 @@ public interface Database {
     List<Trade> searchTrades(String enchantId);
     List<Trade> listTrades();
     void deleteTrade(int id);
-    void updateTradeDescription(int id, String description);
+    boolean updateTradeDescription(int id, String description);
 } 
