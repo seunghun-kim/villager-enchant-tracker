@@ -1,5 +1,5 @@
 name: VillagerEnchantTracker
-version: 1.0
+version: 0.1.0
 main: org.teamck.villagerEnchantTracker.VillagerEnchantTracker
 api-version: '1.21'
 commands:
