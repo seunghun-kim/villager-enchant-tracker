@@ -1,46 +1,41 @@
 # General messages
-no_permission: "You don't have permission to use this command."
-invalid_subcommand: "Invalid subcommand."
-usage: "Usage: /librariandb [create|add-villager|search|nearby|list|delete|update]"
+no_permission: "§cYou don't have permission to use this command."
+invalid_subcommand: "§cInvalid subcommand."
+usage: "§eUsage: /librariandb [create|search|list|delete|edit-description]"
+player_only: "§cThis command can only be used by players."
+click_to_show_particles: "§eClick to show particles at this location"
 
 # Create command
-create_usage: "Usage: /librariandb create <enchant> <level> <price> <x> <y> <z> [description]"
-invalid_enchant: "Invalid enchant ID."
-invalid_level: "Level must be between 1 and %d."
-level_must_be_number: "Level must be a number."
-price_must_be_number: "Price must be a number."
-coordinates_must_be_number: "Coordinates must be numbers or ~."
-trade_created: "Trade has been registered."
-
-# Add-villager command
-add_villager_usage: "Usage: /librariandb add-villager [description]"
-no_villager_nearby: "No villager nearby."
-villager_trades_registered: "Villager's enchant trades have been registered."
+create_usage: "§eUsage: /librariandb create [description]"
+invalid_enchant: "§cInvalid enchant ID."
+invalid_level: "§cLevel must be between 1 and %d."
+no_villager_nearby: "§cNo villager nearby."
+villager_trades_registered: "§aVillager's enchant trades have been registered."
+no_enchant_trades: "§cThis villager has no enchant book trades."
 
 # Search command
-search_usage: "Usage: /librariandb search <enchant>"
-no_trades_found: "No trades found for this enchant."
-trade_info: "[%s %d] Available for %d emeralds\n(%d, %d, %d) %s"
+search_usage: "§eUsage: /librariandb search <enchant>"
+no_trades_found: "§cNo trades found for this enchant."
+trade_info: "§6=== Trade Information ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eDescription: §f%s"
 
-# Nearby command
-nearby_usage: "Usage: /librariandb nearby <enchant> [radius]"
-no_nearby_trades: "No nearby villager has this enchant trade."
-nearby_trade_info: "[%s %d] Available for %d emeralds\n(%d, %d, %d)"
+# Find villager command
+findvillager_usage: "§eUsage: /findvillager <enchantment name or id>"
+no_found_trades: "§cNo nearby villager has this enchant trade."
+found_trade_info: "§6=== Found Trade ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d"
 
 # List command
-no_trades: "No trades registered."
-trade_list_header: "=== Registered Trades ==="
-trade_list_entry: "ID: %d, [%s %d] %d emeralds, (%d, %d, %d) %s"
+no_trades: "§cNo trades registered."
+trade_list_header: "§6=== Registered Trades ==="
+trade_list_entry: "§6=== Trade #%d ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eDescription: §f%s"
 
 # Delete command
-delete_usage: "Usage: /librariandb delete <id>"
-id_must_be_number: "ID must be a number."
-trade_deleted: "Trade has been deleted."
+delete_usage: "§eUsage: /librariandb delete <id>"
+id_must_be_number: "§cID must be a number."
+trade_deleted: "§aTrade has been deleted."
 
-# Update command
-update_usage: "Usage: /librariandb update <id> <enchant> <level> <price> <x> <y> <z> [description]"
-invalid_number_format: "Invalid number format."
-trade_updated: "Trade has been updated."
+# Edit description command
+edit_description_usage: "§eUsage: /librariandb edit-description <id> <description>"
+description_updated: "§aTrade description has been updated."
 
 # Enchant names
 enchantments:

@@ -1,60 +1,55 @@
 # General messages
-no_permission: "권한이 없습니다."
-invalid_subcommand: "잘못된 서브커맨드입니다."
-usage: "사용법: /librariandb [create|add-villager|search|nearby|list|delete|update]"
+no_permission: "§c권한이 없습니다."
+invalid_subcommand: "§c잘못된 서브커맨드입니다."
+usage: "§e사용법: /librariandb [create|search|list|delete|edit-description]"
+player_only: "§c이 명령어는 플레이어만 사용할 수 있습니다."
+click_to_show_particles: "§e클릭하여 이 위치에 파티클 표시"
 
 # Create command
-create_usage: "사용법: /librariandb create <enchant> <level> <price> <x> <y> <z> [description]"
-invalid_enchant: "잘못된 인챈트 ID입니다."
-invalid_level: "레벨은 1에서 %d 사이여야 합니다."
-level_must_be_number: "레벨은 숫자여야 합니다."
-price_must_be_number: "가격은 숫자여야 합니다."
-coordinates_must_be_number: "좌표는 숫자 또는 ~이어야 합니다."
-trade_created: "거래가 등록되었습니다."
-
-# Add-villager command
-add_villager_usage: "사용법: /librariandb add-villager [description]"
-no_villager_nearby: "근처에 주민이 없습니다."
-villager_trades_registered: "주민의 인챈트 거래가 등록되었습니다."
+create_usage: "§e사용법: /librariandb create [description]"
+invalid_enchant: "§c잘못된 인챈트 ID입니다."
+invalid_level: "§c레벨은 1에서 %d 사이여야 합니다."
+no_villager_nearby: "§c근처에 주민이 없습니다."
+villager_trades_registered: "§a주민의 인챈트 거래가 등록되었습니다."
+no_enchant_trades: "§c이 주민은 인챈트 책 거래가 없습니다."
 
 # Search command
-search_usage: "사용법: /librariandb search <enchant>"
-no_trades_found: "해당 인챈트의 거래가 없습니다."
-trade_info: "[%s %d] %d원에 거래 가능\n(%d, %d, %d) %s"
+search_usage: "§e사용법: /librariandb search <enchant>"
+no_trades_found: "§c해당 인챈트의 거래가 없습니다."
+trade_info: "§6=== 거래 정보 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e설명: §f%s"
 
-# Nearby command
-nearby_usage: "사용법: /librariandb nearby <enchant> [radius]"
-no_nearby_trades: "근처 주민에게 해당 인챈트 거래가 없습니다."
-nearby_trade_info: "[%s %d] %d원에 거래 가능\n(%d, %d, %d)"
+# Find villager command
+findvillager_usage: "§e사용법: /findvillager <인챈트 이름 또는 ID>"
+no_found_trades: "§c근처 주민에게 해당 인챈트 거래가 없습니다."
+found_trade_info: "§6=== 발견된 거래 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d"
 
 # List command
-no_trades: "등록된 거래가 없습니다."
-trade_list_header: "=== 등록된 거래 목록 ==="
-trade_list_entry: "ID: %d, [%s %d] %d원, (%d, %d, %d) %s"
+no_trades: "§c등록된 거래가 없습니다."
+trade_list_header: "§6=== 등록된 거래 목록 ==="
+trade_list_entry: "§6=== 거래 #%d ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e설명: §f%s"
 
 # Delete command
-delete_usage: "사용법: /librariandb delete <id>"
-id_must_be_number: "ID는 숫자여야 합니다."
-trade_deleted: "거래가 삭제되었습니다."
+delete_usage: "§e사용법: /librariandb delete <id>"
+id_must_be_number: "§cID는 숫자여야 합니다."
+trade_deleted: "§a거래가 삭제되었습니다."
 
-# Update command
-update_usage: "사용법: /librariandb update <id> <enchant> <level> <price> <x> <y> <z> [description]"
-invalid_number_format: "숫자 형식이 잘못되었습니다."
-trade_updated: "거래가 수정되었습니다."
+# Edit description command
+edit_description_usage: "§e사용법: /librariandb edit-description <id> <description>"
+description_updated: "§a거래 설명이 수정되었습니다."
 
 # Enchant names
 enchantments:
   protection: "보호"
-  fire_protection: "화염 보호"
+  fire_protection: "화염으로부터 보호"
   feather_falling: "가벼운 착지"
-  blast_protection: "폭발 보호"
-  projectile_protection: "발사체 보호"
+  blast_protection: "폭발로부터 보호"
+  projectile_protection: "발사체로부터 보호"
   respiration: "호흡"
   aqua_affinity: "친수성"
   thorns: "가시"
   depth_strider: "물갈퀴"
   frost_walker: "차가운 걸음"
-  binding_curse: "구속의 저주"
+  binding_curse: "귀속 저주"
   sharpness: "날카로움"
   smite: "강타"
   bane_of_arthropods: "살충"
@@ -80,6 +75,6 @@ enchantments:
   quick_charge: "빠른 장전"
   piercing: "관통"
   mending: "수선"
-  vanishing_curse: "소멸의 저주"
+  vanishing_curse: "소실 저주"
   soul_speed: "영혼 가속"
   swift_sneak: "신속한 잠행" 

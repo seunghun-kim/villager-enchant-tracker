@@ -1,4 +1,4 @@
-package org.teamck.minecraftLibrarianDatabase;
+package org.teamck.villagerEnchantTracker;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -34,4 +34,4 @@ public class VillagerTradeSearcher {
         }
         return trades;
     }
-}
+} 

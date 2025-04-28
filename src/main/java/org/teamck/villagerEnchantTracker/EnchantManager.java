@@ -1,4 +1,4 @@
-package org.teamck.minecraftLibrarianDatabase;
+package org.teamck.villagerEnchantTracker;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.NamespacedKey;
@@ -20,4 +20,4 @@ public class EnchantManager {
                 .map(enchant -> "minecraft:" + enchant.getKey().getKey())
                 .collect(Collectors.toList());
     }
-}
+} 

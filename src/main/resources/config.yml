@@ -6,16 +6,16 @@ language:
 particles:
   # Particle type, height, count
   - type: "HAPPY_VILLAGER"
-    height: 10
+    height: 20
     count: 10
   - type: "ENCHANT"
-    height: 10
+    height: 20
     count: 10
   - type: "END_ROD"
-    height: 10
+    height: 20
     count: 5
   - type: "DRAGON_BREATH"
-    height: 10
+    height: 20
     count: 5
 
 # Particle duration (seconds)
@@ -23,3 +23,10 @@ particle-duration: 30
 
 # Particle spawn interval (seconds)
 particle-interval: 1
+
+# Particle effect settings
+particle-effects:
+  show-pillar: true    # Show particle pillar at villager location
+  show-line: true      # Show particle line between player and villager
+  line-points: 20      # Number of points in the particle line
+  line-update-interval: 0.1  # Line update interval in seconds (0.1 = 5 ticks)

@@ -1,4 +1,4 @@
-package org.teamck.minecraftLibrarianDatabase;
+package org.teamck.villagerEnchantTracker;
 
 import org.bukkit.Location;
 
@@ -25,4 +25,4 @@ public class Trade {
     public int getPrice() { return price; }
     public Location getLocation() { return location; }
     public String getDescription() { return description; }
-}
+} 

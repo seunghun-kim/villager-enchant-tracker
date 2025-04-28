@@ -1,4 +1,4 @@
-package org.teamck.minecraftLibrarianDatabase;
+package org.teamck.villagerEnchantTracker;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -59,10 +59,12 @@ public class SQLiteDatabase implements Database {
     }
 
     @Override
-    public void addVillagerTrades(Villager villager, String description) {
+    public boolean addVillagerTrades(Villager villager, String description) {
+        boolean hasEnchantTrades = false;
         for (MerchantRecipe recipe : villager.getRecipes()) {
             ItemStack result = recipe.getResult();
             if (result.getType() == Material.ENCHANTED_BOOK && result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+                hasEnchantTrades = true;
                 meta.getStoredEnchants().forEach((enchant, level) -> {
                     int price = recipe.getIngredients().stream()
                             .filter(i -> i.getType() == Material.EMERALD)
@@ -72,6 +74,7 @@ public class SQLiteDatabase implements Database {
                 });
             }
         }
+        return hasEnchantTrades;
     }
 
     @Override
@@ -120,20 +123,16 @@ public class SQLiteDatabase implements Database {
             e.printStackTrace();
         }
     }
-
+    
     @Override
-    public void updateTrade(int id, String enchantId, int level, int price, Location location, String description) {
+    public void updateTradeDescription(int id, String description) {
         try (PreparedStatement stmt = connection.prepareStatement(
-                "UPDATE Trades SET enchant_id_string = ?, level = ?, price = ?, location = ?, description = ? WHERE id = ?")) {
-            stmt.setString(1, enchantId);
-            stmt.setInt(2, level);
-            stmt.setInt(3, price);
-            stmt.setString(4, location.getX() + "," + location.getY() + "," + location.getZ());
-            stmt.setString(5, description);
-            stmt.setInt(6, id);
+                "UPDATE Trades SET description = ? WHERE id = ?")) {
+            stmt.setString(1, description);
+            stmt.setInt(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-}
+} 
