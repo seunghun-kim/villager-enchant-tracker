@@ -22,9 +22,13 @@ public final class VillagerEnchantTracker extends JavaPlugin {
             getCommand("librariandb").setExecutor(librarianCommand);
             getCommand("librariandb").setTabCompleter(librarianCommand);
 
-            FindVillagerCommand findVillagerCommand = new FindVillagerCommand(messageManager, this);
+            FindVillagerCommand findVillagerCommand = new FindVillagerCommand(messageManager, this, db);
             getCommand("findvillager").setExecutor(findVillagerCommand);
             getCommand("findvillager").setTabCompleter(findVillagerCommand);
+
+            RegionCommand regionCommand = new RegionCommand(db, messageManager, this);
+            getCommand("villagerregion").setExecutor(regionCommand);
+            getCommand("villagerregion").setTabCompleter(regionCommand);
         } catch (SQLException e) {
             getLogger().severe("Failed to initialize database: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);

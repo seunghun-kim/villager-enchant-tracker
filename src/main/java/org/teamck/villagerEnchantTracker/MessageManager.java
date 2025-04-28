@@ -19,6 +19,7 @@ public class MessageManager {
     private final JavaPlugin plugin;
     private final Map<String, YamlConfiguration> messages;
     private String chatLanguage;
+    private static final String DEFAULT_VERSION = "0.1.0";
 
     public MessageManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -41,13 +42,28 @@ public class MessageManager {
             localizationDir.mkdirs();
         }
 
+        // Check config version
+        checkConfigVersion((YamlConfiguration) plugin.getConfig(), "config.yml");
+
         // Load each language file
         for (String lang : new String[]{"en", "ko"}) {
             File langFile = new File(localizationDir, lang + ".yml");
             if (!langFile.exists()) {
                 plugin.saveResource("localization/" + lang + ".yml", false);
             }
-            messages.put(lang, YamlConfiguration.loadConfiguration(langFile));
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(langFile);
+            messages.put(lang, config);
+            checkConfigVersion(config, lang + ".yml");
+        }
+    }
+
+    private void checkConfigVersion(YamlConfiguration config, String fileName) {
+        String fileVersion = config.getString("version", DEFAULT_VERSION);
+        String pluginVersion = plugin.getDescription().getVersion();
+        
+        if (!fileVersion.equals(pluginVersion)) {
+            plugin.getLogger().warning("Version mismatch in " + fileName + ": " +
+                "File version is " + fileVersion + " but plugin version is " + pluginVersion);
         }
     }
 

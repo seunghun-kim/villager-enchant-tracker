@@ -1,3 +1,5 @@
+version: '0.2.0'
+
 # General messages
 no_permission: "§cYou don't have permission to use this command."
 invalid_subcommand: "§cInvalid subcommand."
@@ -21,7 +23,7 @@ trade_info: "§6=== Trade Information ===\n§eEnchant: §f%s %d\n§ePrice: §f%d
 # Find villager command
 findvillager_usage: "§eUsage: /findvillager <enchantment name or id>"
 no_found_trades: "§cNo nearby villager has this enchant trade."
-found_trade_info: "§6=== Found Trade ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d"
+found_trade_info: "§6=== Found Trade ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eRegion: §f%s"
 
 # List command
 no_trades: "§cNo trades registered."
@@ -37,6 +39,25 @@ trade_deleted: "§aTrade has been deleted."
 edit_description_usage: "§eUsage: /librariandb edit-description <id> <description>"
 description_updated: "§aTrade description has been updated."
 trade_not_found: "§cTrade not found."
+
+# Region commands
+region_usage: "§eUsage: /region [create|list|delete|scan]"
+region_create_usage: "§eUsage: /region create <name> [x1 y1 z1 x2 y2 z2]"
+region_create_coords_usage: "§eUsage: /region create <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+region_delete_usage: "§eUsage: /region delete <id>"
+region_scan_usage: "§eUsage: /region scan <name>"
+worldedit_not_found: "§cWorldEdit plugin not found. Using coordinate-based region creation."
+no_selection: "§cNo WorldEdit selection found. Using coordinate-based region creation."
+region_created: "§aRegion '%1$s' created successfully."
+region_creation_failed: "§cFailed to create region."
+no_regions: "§cNo regions registered in the database."
+region_list_header: "§6=== Registered Regions ==="
+region_list_entry: "§eID: §f%1$d §eName: §f%2$s §eMin: §f%3$d,%4$d,%5$d §eMax: §f%6$d,%7$d,%8$d"
+region_deleted: "§aRegion deleted successfully."
+region_not_found: "§cRegion not found."
+villagers_registered: "§aRegistered trades from %1$d villagers."
+no_villagers_found: "§cNo villagers found in the region."
+invalid_coordinates: "§cInvalid coordinates. Please provide valid numbers."
 
 # Enchant names
 enchantments:

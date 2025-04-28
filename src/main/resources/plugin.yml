@@ -1,18 +1,18 @@
 name: VillagerEnchantTracker
-version: 0.1.0
+version: '0.2.0'
 main: org.teamck.villagerEnchantTracker.VillagerEnchantTracker
 api-version: '1.21'
+softdepend: [WorldEdit, FastAsyncWorldEdit]
 commands:
   librariandb:
-    description: Villager Enchant Tracker management command
+    description: Manage librarian villager trades
     usage: /<command> [create|search|list|delete|edit-description|particle]
+    permission: villagerenchanttracker.admin
   findvillager:
-    description: Search for nearby villager trades
-    usage: /<command> <enchantment name or id> [particle]
-permissions:
-  villagerenchanttracker.admin:
-    description: Allows managing Villager Enchant Tracker
-    default: op
-  villagerenchanttracker.find:
-    description: Allows searching for nearby villager trades
-    default: true
+    description: Find nearby villagers with specific enchantments
+    usage: /<command> <enchantment>
+    permission: villagerenchanttracker.use
+  villagerregion:
+    description: Manage regions for villager trade tracking
+    usage: /<command> [create|list|delete]
+    permission: villagerenchanttracker.admin

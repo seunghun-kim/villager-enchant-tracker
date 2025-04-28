@@ -1,3 +1,5 @@
+version: '0.2.0'
+
 # General messages
 no_permission: "§c권한이 없습니다."
 invalid_subcommand: "§c잘못된 서브커맨드입니다."
@@ -21,7 +23,7 @@ trade_info: "§6=== 거래 정보 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 
 # Find villager command
 findvillager_usage: "§e사용법: /findvillager <인챈트 이름 또는 ID>"
 no_found_trades: "§c근처 주민에게 해당 인챈트 거래가 없습니다."
-found_trade_info: "§6=== 발견된 거래 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d"
+found_trade_info: "§6=== 발견된 거래 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e영역: §f%s"
 
 # List command
 no_trades: "§c등록된 거래가 없습니다."
@@ -37,6 +39,25 @@ trade_deleted: "§a거래가 삭제되었습니다."
 edit_description_usage: "§e사용법: /librariandb edit-description <id> <description>"
 description_updated: "§a거래 설명이 수정되었습니다."
 trade_not_found: "§c거래를 찾을 수 없습니다."
+
+# Region commands
+region_usage: "§e사용법: /region [create|list|delete|scan]"
+region_create_usage: "§e사용법: /region create <이름> [x1 y1 z1 x2 y2 z2]"
+region_create_coords_usage: "§e사용법: /region create <이름> <x1> <y1> <z1> <x2> <y2> <z2>"
+region_delete_usage: "§e사용법: /region delete <id>"
+region_scan_usage: "§e사용법: /region scan <이름>"
+worldedit_not_found: "§cWorldEdit 플러그인이 없습니다. 좌표 기반 영역 생성으로 전환합니다."
+no_selection: "§cWorldEdit 선택 영역이 없습니다. 좌표 기반 영역 생성으로 전환합니다."
+region_created: "§a영역 '%1$s'이(가) 생성되었습니다."
+region_creation_failed: "§c영역 생성에 실패했습니다."
+no_regions: "§c등록된 영역이 없습니다."
+region_list_header: "§6=== 등록된 영역 목록 ==="
+region_list_entry: "§eID: §f%1$d §e이름: §f%2$s §e최소: §f%3$d,%4$d,%5$d §e최대: §f%6$d,%7$d,%8$d"
+region_deleted: "§a영역이 삭제되었습니다."
+region_not_found: "§c영역을 찾을 수 없습니다."
+villagers_registered: "§a%1$d명의 주민의 거래가 등록되었습니다."
+no_villagers_found: "§c영역 내에 주민이 없습니다."
+invalid_coordinates: "§c잘못된 좌표입니다. 유효한 숫자를 입력해주세요."
 
 # Enchant names
 enchantments:

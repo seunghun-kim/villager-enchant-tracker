@@ -103,8 +103,7 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         // Cancel all existing particles before showing new results
         particleManager.cancelAllParticles(player);
 
-        double radius = 50.0; // Default radius
-        List<Trade> trades = VillagerTradeSearcher.searchNearbyVillagerTrades(player, enchantId, radius);
+        List<Trade> trades = db.searchTrades(enchantId);
         if (trades.isEmpty()) {
             player.sendMessage(messageManager.getChatMessage("no_found_trades"));
             return;
@@ -115,7 +114,8 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             Location loc = trade.getLocation();
             String message = messageManager.format("found_trade_info",
                     localName, trade.getLevel(), trade.getPrice(),
-                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
+                    trade.getRegionName());
             
             // Make the message clickable
             TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/librariandb particle");

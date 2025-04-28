@@ -1,3 +1,5 @@
+version: '0.2.0'
+
 # Language settings
 language:
   chat: "en"   # Chat output language (en, ko)

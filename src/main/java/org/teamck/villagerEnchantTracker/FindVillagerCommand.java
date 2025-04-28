@@ -8,6 +8,12 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Villager;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +23,50 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
     private final MessageManager messageManager;
     private final JavaPlugin plugin;
     private final ParticleManager particleManager;
+    private final Database db;
 
-    public FindVillagerCommand(MessageManager messageManager, JavaPlugin plugin) {
+    public FindVillagerCommand(MessageManager messageManager, JavaPlugin plugin, Database db) {
         this.messageManager = messageManager;
         this.plugin = plugin;
         this.particleManager = new ParticleManager(plugin);
+        this.db = db;
+    }
+
+    public List<Trade> searchNearbyVillagerTrades(Player player, String enchantId, double radius) {
+        List<Trade> trades = new ArrayList<>();
+        for (Entity entity : player.getNearbyEntities(radius, radius, radius)) {
+            if (entity instanceof Villager villager) {
+                for (MerchantRecipe recipe : villager.getRecipes()) {
+                    ItemStack result = recipe.getResult();
+                    if (result.getType() == Material.ENCHANTED_BOOK && result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+                        meta.getStoredEnchants().forEach((enchant, level) -> {
+                            if (("minecraft:" + enchant.getKey().getKey()).equals(enchantId)) {
+                                int price = recipe.getIngredients().stream()
+                                        .filter(i -> i.getType() == Material.EMERALD)
+                                        .mapToInt(ItemStack::getAmount)
+                                        .sum();
+                                
+                                // Check if the villager is in any region
+                                plugin.getLogger().info("Checking if villager is in any region");
+                                String regionName = null;
+                                for (VillagerRegion region : db.listRegions()) {
+                                    plugin.getLogger().info("Region: " + region.getName() + " " + region.getMin() + " " + region.getMax());
+                                    plugin.getLogger().info("Villager Location: " + villager.getLocation());
+                                    if (region.contains(villager.getLocation())) {
+                                        plugin.getLogger().info("Region found: " + region.getName());
+                                        regionName = region.getName();
+                                        break;
+                                    }
+                                }
+                                plugin.getLogger().info("RegionName: " + regionName);
+                                trades.add(new Trade(0, enchantId, level, price, villager.getLocation(), "", regionName));
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        return trades;
     }
 
     @Override
@@ -58,7 +103,7 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
         particleManager.cancelAllParticles(player);
 
         double radius = 50.0; // Default radius
-        List<Trade> trades = VillagerTradeSearcher.searchNearbyVillagerTrades(player, enchantId, radius);
+        List<Trade> trades = searchNearbyVillagerTrades(player, enchantId, radius);
         if (trades.isEmpty()) {
             player.sendMessage(messageManager.getChatMessage("no_found_trades"));
             return true;
@@ -69,7 +114,8 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
             Location loc = trade.getLocation();
             String message = messageManager.format("found_trade_info",
                     localName, trade.getLevel(), trade.getPrice(),
-                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
+                    trade.getRegionName());
             
             // Make the message clickable
             TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/findvillager particle");
