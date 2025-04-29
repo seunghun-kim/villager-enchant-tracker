@@ -59,6 +59,23 @@ villagers_registered: "§aRegistered trades from %1$d villagers."
 no_villagers_found: "§cNo villagers found in the region."
 invalid_coordinates: "§cInvalid coordinates. Please provide valid numbers."
 
+# EVT Integration commands
+evtintegration_header: "§6=== EVT Integration Commands ==="
+evtintegration_nearby_usage: "§e/evtintegration nearby [radius] [discountAmount]"
+evtintegration_region_usage: "§e/evtintegration region <regionName/*> [discountAmount]"
+nearby_usage: "§eUsage: /evtintegration nearby <radius>"
+invalid_radius: "§cInvalid radius. Please enter a valid number."
+invalid_discount: "§cInvalid discount amount. Please enter a valid number."
+no_librarians_nearby: "§cNo librarian villagers found within %d blocks!"
+no_librarians_in_region: "§cNo librarian villagers found in the selected region(s)!"
+new_enchants_header: "§6=== New Enchants (Click to Register) ==="
+existing_enchants_header: "§6=== Existing Enchants (Click to Register) ==="
+enchants_footer: "§6==================================="
+new_enchant_line: "§e[%s %d] "
+existing_enchant_line: "§a[%s %d - $%d] "
+price_component: "§7%d"
+price_hover: "§7Click to execute: %s"
+
 # Enchant names
 enchantments:
   protection: "Protection"
@@ -100,3 +117,4 @@ enchantments:
   vanishing_curse: "Curse of Vanishing"
   soul_speed: "Soul Speed"
   swift_sneak: "Swift Sneak" 
+  wind_burst: "Wind Burst"

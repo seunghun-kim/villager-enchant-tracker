@@ -3,6 +3,7 @@ package org.teamck.villagerEnchantTracker.manager;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -19,7 +20,6 @@ public class MessageManager {
     private static MessageManager instance;
     private final JavaPlugin plugin;
     private final Map<String, YamlConfiguration> messages;
-    private String chatLanguage;
     private static final String DEFAULT_VERSION = "0.1.0";
 
     public MessageManager(JavaPlugin plugin) {
@@ -34,9 +34,6 @@ public class MessageManager {
     }
 
     private void loadLanguages() {
-        // Load language settings from config
-        chatLanguage = plugin.getConfig().getString("language.chat", "en");
-
         // Create localization directory
         File localizationDir = new File(plugin.getDataFolder(), "localization");
         if (!localizationDir.exists()) {
@@ -76,12 +73,13 @@ public class MessageManager {
         return config.getString(key, key);
     }
 
-    public String getChatMessage(String key) {
-        return getMessage(key, chatLanguage);
+    public String getChatMessage(String key, Player player) {
+        String language = getBaseLanguageCode(player.getLocale());
+        return getMessage(key, language);
     }
 
-    public String format(String key, Object... args) {
-        String message = getChatMessage(key);
+    public String format(String key, Player player, Object... args) {
+        String message = getChatMessage(key, player);
         return String.format(message, args);
     }
 
@@ -94,8 +92,8 @@ public class MessageManager {
         return getMessage("enchantments." + key, language);
     }
 
-    public String getLocalEnchantName(String enchantId) {
-        return getEnchantName(enchantId, chatLanguage);
+    public String getEnchantName(String enchantId, Player player) {
+        return getEnchantName(enchantId, getBaseLanguageCode(player.getLocale()));
     }
 
     public String getBaseLanguageCode(String fullLocale) {
@@ -165,12 +163,12 @@ public class MessageManager {
         return names;
     }
 
-    public TextComponent createClickableMessage(String message, Location loc, String command) {
+    public TextComponent createClickableMessage(String message, Location loc, String command, Player player) {
         TextComponent textComponent = new TextComponent(message);
         textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, 
                 command + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
         textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-                new BaseComponent[]{new TextComponent(getChatMessage("click_to_show_particles"))}));
+                new BaseComponent[]{new TextComponent(getChatMessage("click_to_show_particles", player))}));
         return textComponent;
     }
 } 

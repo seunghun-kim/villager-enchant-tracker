@@ -4,17 +4,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.teamck.villagerEnchantTracker.database.Database;
 import org.teamck.villagerEnchantTracker.core.VillagerEnchantTracker;
 import org.teamck.villagerEnchantTracker.core.VillagerRegion;
+import org.teamck.villagerEnchantTracker.database.Database;
 import org.teamck.villagerEnchantTracker.manager.EnchantmentManager;
 import org.teamck.villagerEnchantTracker.manager.MessageManager;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
     private final VillagerEnchantTracker plugin;
@@ -31,14 +29,14 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cThis command can only be used by players!");
+            sender.sendMessage(messageManager.getMessage("player_only", "en"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("villagerenchanttracker.use")) {
-            sender.sendMessage("§cYou don't have permission to use this command!");
+            player.sendMessage(messageManager.getChatMessage("no_permission", player));
             return true;
         }
 
@@ -118,7 +116,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleNearbyCommand(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("nearby_usage"));
+            player.sendMessage(messageManager.getChatMessage("nearby_usage", player));
             return true;
         }
 
@@ -126,7 +124,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         try {
             radius = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            player.sendMessage(messageManager.getChatMessage("invalid_radius"));
+            player.sendMessage(messageManager.getChatMessage("invalid_radius", player));
             return true;
         }
 
@@ -134,7 +132,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         try {
             discountAmount = args.length >= 3 ? Integer.parseInt(args[2]) : 1;
         } catch (NumberFormatException e) {
-            player.sendMessage(messageManager.getChatMessage("invalid_discount"));
+            player.sendMessage(messageManager.getChatMessage("invalid_discount", player));
             return true;
         }
 
@@ -149,7 +147,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         if (librarians.isEmpty()) {
             plugin.getLogger().info(String.format("No librarians found for player %s within %d blocks",
                     player.getName(), radius));
-            player.sendMessage("§cNo librarian villagers found within " + radius + " blocks!");
+            player.sendMessage(messageManager.format("no_librarians_nearby", player, radius));
             return true;
         }
 
@@ -170,7 +168,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         newEnchants.removeAll(existingTrades);
         
         if (!newEnchants.isEmpty()) {
-            player.sendMessage("§6=== New Enchants (Click to Register) ===");
+            player.sendMessage(messageManager.getChatMessage("new_enchants_header", player));
             for (String enchant : newEnchants) {
                 String[] parts = enchant.split(" ");
                 String enchantId = parts[0];
@@ -178,13 +176,13 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                 String localName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
                 
                 net.md_5.bungee.api.chat.TextComponent line = new net.md_5.bungee.api.chat.TextComponent(
-                    String.format("§e[%s %d] ", localName, level)
+                    messageManager.format("new_enchant_line", player, localName, level)
                 );
                 
                 // Add price options
                 int[] prices = {64, 48, 32, 16, 1};
                 for (int price : prices) {
-                    line.addExtra(createPriceComponent(price, enchantId, level));
+                    line.addExtra(createPriceComponent(price, enchantId, level, player));
                     line.addExtra(new net.md_5.bungee.api.chat.TextComponent(" "));
                 }
                 
@@ -194,7 +192,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
 
         // Then show existing enchantments
         if (!existingTrades.isEmpty()) {
-            player.sendMessage("§6=== Existing Enchants (Click to Register) ===");
+            player.sendMessage(messageManager.getChatMessage("existing_enchants_header", player));
             for (String enchant : existingTrades) {
                 String[] parts = enchant.split(" ");
                 String enchantId = parts[0];
@@ -207,7 +205,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                 if (discountedPrice < 1) discountedPrice = 1;
                 
                 net.md_5.bungee.api.chat.TextComponent line = new net.md_5.bungee.api.chat.TextComponent(
-                    String.format("§a[%s %d - $%d] ", localName, level, discountedPrice)
+                    messageManager.format("existing_enchant_line", player, localName, level, discountedPrice)
                 );
                 
                 // Add price options starting from discounted price
@@ -217,7 +215,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                 }
                 
                 for (int price : prices) {
-                    line.addExtra(createPriceComponent(price, enchantId, level));
+                    line.addExtra(createPriceComponent(price, enchantId, level, player));
                     line.addExtra(new net.md_5.bungee.api.chat.TextComponent(" "));
                 }
                 
@@ -225,7 +223,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        player.sendMessage("§6==================================");
+        player.sendMessage(messageManager.getChatMessage("enchants_footer", player));
         
         int totalEnchants = existingTrades.size() + newEnchants.size();
         plugin.getLogger().info(String.format("Completed nearby search for player %s: %d enchantments found",
@@ -235,7 +233,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleRegionCommand(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("region_usage"));
+            player.sendMessage(messageManager.getChatMessage("region_usage", player));
             return true;
         }
 
@@ -243,25 +241,25 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         try {
             discountAmount = args.length >= 3 ? Integer.parseInt(args[2]) : 1;
         } catch (NumberFormatException e) {
-            player.sendMessage(messageManager.getChatMessage("invalid_discount"));
+            player.sendMessage(messageManager.getChatMessage("invalid_discount", player));
             return true;
         }
 
         // Get selected regions
         List<VillagerRegion> regions = new ArrayList<>();
-        if (args[1].equalsIgnoreCase("all")) {
+        if (args[1].equalsIgnoreCase("all") || args[1].equals("*")) {
             regions.addAll(database.listRegions());
         } else {
             VillagerRegion region = database.getRegionByName(args[1]);
             if (region == null) {
-                player.sendMessage(messageManager.getChatMessage("region_not_found"));
+                player.sendMessage(messageManager.getChatMessage("region_not_found", player));
                 return true;
             }
             regions.add(region);
         }
 
         if (regions.isEmpty()) {
-            player.sendMessage(messageManager.getChatMessage("no_regions"));
+            player.sendMessage(messageManager.getChatMessage("no_regions", player));
             return true;
         }
 
@@ -286,7 +284,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         if (totalLibrarians == 0) {
             plugin.getLogger().info(String.format("No librarians found in any selected region for player %s",
                     player.getName()));
-            player.sendMessage("§cNo librarian villagers found in the selected region(s)!");
+            player.sendMessage(messageManager.getChatMessage("no_librarians_in_region", player));
             return true;
         }
 
@@ -295,7 +293,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         newEnchants.removeAll(existingTrades);
         
         if (!newEnchants.isEmpty()) {
-            player.sendMessage("§6=== New Enchants (Click to Register) ===");
+            player.sendMessage(messageManager.getChatMessage("new_enchants_header", player));
             for (String enchant : newEnchants) {
                 String[] parts = enchant.split(" ");
                 String enchantId = parts[0];
@@ -303,13 +301,13 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                 String localName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
                 
                 net.md_5.bungee.api.chat.TextComponent line = new net.md_5.bungee.api.chat.TextComponent(
-                    String.format("§e[%s %d] ", localName, level)
+                    messageManager.format("new_enchant_line", player, localName, level)
                 );
                 
                 // Add price options
                 int[] prices = {64, 48, 32, 16, 1};
                 for (int price : prices) {
-                    line.addExtra(createPriceComponent(price, enchantId, level));
+                    line.addExtra(createPriceComponent(price, enchantId, level, player));
                     line.addExtra(new net.md_5.bungee.api.chat.TextComponent(" "));
                 }
                 
@@ -319,7 +317,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
 
         // Then show existing enchantments
         if (!existingTrades.isEmpty()) {
-            player.sendMessage("§6=== Existing Enchants (Click to Register) ===");
+            player.sendMessage(messageManager.getChatMessage("existing_enchants_header", player));
             for (String enchant : existingTrades) {
                 String[] parts = enchant.split(" ");
                 String enchantId = parts[0];
@@ -332,7 +330,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                 if (discountedPrice < 1) discountedPrice = 1;
                 
                 net.md_5.bungee.api.chat.TextComponent line = new net.md_5.bungee.api.chat.TextComponent(
-                    String.format("§a[%s %d - $%d] ", localName, level, discountedPrice)
+                    messageManager.format("existing_enchant_line", player, localName, level, discountedPrice)
                 );
                 
                 // Add price options starting from discounted price
@@ -342,7 +340,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                 }
                 
                 for (int price : prices) {
-                    line.addExtra(createPriceComponent(price, enchantId, level));
+                    line.addExtra(createPriceComponent(price, enchantId, level, player));
                     line.addExtra(new net.md_5.bungee.api.chat.TextComponent(" "));
                 }
                 
@@ -350,7 +348,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        player.sendMessage("§6==================================");
+        player.sendMessage(messageManager.getChatMessage("enchants_footer", player));
         
         int totalEnchants = existingTrades.size() + newEnchants.size();
         plugin.getLogger().info(String.format("Completed region search for player %s: %d enchantments found",
@@ -358,9 +356,9 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private net.md_5.bungee.api.chat.TextComponent createPriceComponent(int price, String enchantId, int level) {
+    private net.md_5.bungee.api.chat.TextComponent createPriceComponent(int price, String enchantId, int level, Player player) {
         net.md_5.bungee.api.chat.TextComponent priceComponent = new net.md_5.bungee.api.chat.TextComponent(
-            String.format("§7%d", price)
+            messageManager.format("price_component", player, price)
         );
         
         // Add hover text to show the command that will be executed
@@ -371,7 +369,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         ));
         priceComponent.setHoverEvent(new net.md_5.bungee.api.chat.HoverEvent(
             net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
-            new net.md_5.bungee.api.chat.ComponentBuilder("§7Click to execute: " + command).create()
+            new net.md_5.bungee.api.chat.ComponentBuilder(messageManager.format("price_hover", player, command)).create()
         ));
         
         return priceComponent;
@@ -382,8 +380,8 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendUsage(Player player) {
-        player.sendMessage("§6=== EVT Integration Commands ===");
-        player.sendMessage("§e/evtintegration nearby [radius] [discountAmount]");
-        player.sendMessage("§e/evtintegration region <regionName/*> [discountAmount]");
+        player.sendMessage(messageManager.getChatMessage("evtintegration_header", player));
+        player.sendMessage(messageManager.getChatMessage("evtintegration_nearby_usage", player));
+        player.sendMessage(messageManager.getChatMessage("evtintegration_region_usage", player));
     }
 } 

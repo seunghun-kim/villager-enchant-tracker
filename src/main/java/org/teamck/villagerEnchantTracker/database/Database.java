@@ -18,7 +18,7 @@ public interface Database {
     
     // Region management methods
     int createRegion(String name, Location min, Location max);
-    void deleteRegion(int id);
+    boolean deleteRegion(int id);
     List<VillagerRegion> listRegions();
     VillagerRegion getRegion(int id);
     VillagerRegion getRegionByName(String name);

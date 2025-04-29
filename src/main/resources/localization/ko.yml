@@ -59,6 +59,23 @@ villagers_registered: "§a%1$d명의 주민의 거래가 등록되었습니다."
 no_villagers_found: "§c영역 내에 주민이 없습니다."
 invalid_coordinates: "§c잘못된 좌표입니다. 유효한 숫자를 입력해주세요."
 
+# EVT Integration commands
+evtintegration_header: "§6=== EVT 통합 명령어 ==="
+evtintegration_nearby_usage: "§e/evtintegration nearby [반경] [할인금액]"
+evtintegration_region_usage: "§e/evtintegration region <지역이름/*> [할인금액]"
+nearby_usage: "§e사용법: /evtintegration nearby <반경>"
+invalid_radius: "§c잘못된 반경입니다. 유효한 숫자를 입력해주세요."
+invalid_discount: "§c잘못된 할인금액입니다. 유효한 숫자를 입력해주세요."
+no_librarians_nearby: "§c%d블록 반경 내에 사서 주민이 없습니다!"
+no_librarians_in_region: "§c선택한 영역 내에 사서 주민이 없습니다!"
+new_enchants_header: "§6=== 새로운 인챈트 (클릭하여 등록) ==="
+existing_enchants_header: "§6=== 기존 인챈트 (클릭하여 등록) ==="
+enchants_footer: "§6==================================="
+new_enchant_line: "§e[%s %d] "
+existing_enchant_line: "§a[%s %d - %d에메랄드] "
+price_component: "§7%d"
+price_hover: "§7클릭하여 실행: %s"
+
 # Enchant names
 enchantments:
   protection: "보호"
@@ -100,3 +117,4 @@ enchantments:
   vanishing_curse: "소실 저주"
   soul_speed: "영혼 가속"
   swift_sneak: "신속한 잠행" 
+  wind_burst: "돌풍"

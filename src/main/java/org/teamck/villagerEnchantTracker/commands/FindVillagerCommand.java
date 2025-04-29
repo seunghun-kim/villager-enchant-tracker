@@ -1,19 +1,20 @@
 package org.teamck.villagerEnchantTracker.commands;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.plugin.java.JavaPlugin;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.teamck.villagerEnchantTracker.core.Trade;
 import org.teamck.villagerEnchantTracker.core.VillagerRegion;
 import org.teamck.villagerEnchantTracker.database.Database;
@@ -29,6 +30,7 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
     private final JavaPlugin plugin;
     private final ParticleManager particleManager;
     private final Database db;
+    private static final double DEFAULT_RADIUS = 50.0;
 
     public FindVillagerCommand(MessageManager messageManager, JavaPlugin plugin, Database db) {
         this.messageManager = messageManager;
@@ -52,18 +54,13 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
                                         .sum();
                                 
                                 // Check if the villager is in any region
-                                plugin.getLogger().info("Checking if villager is in any region");
                                 String regionName = null;
                                 for (VillagerRegion region : db.listRegions()) {
-                                    plugin.getLogger().info("Region: " + region.getName() + " " + region.getMin() + " " + region.getMax());
-                                    plugin.getLogger().info("Villager Location: " + villager.getLocation());
                                     if (region.contains(villager.getLocation())) {
-                                        plugin.getLogger().info("Region found: " + region.getName());
                                         regionName = region.getName();
                                         break;
                                     }
                                 }
-                                plugin.getLogger().info("RegionName: " + regionName);
                                 trades.add(new Trade(0, enchantId, level, price, villager.getLocation(), "", regionName));
                             }
                         });
@@ -76,63 +73,67 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(messageManager.getChatMessage("player_only"));
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(messageManager.getMessage("player_only", "en"));
             return true;
         }
 
-        if (!sender.hasPermission("villagerenchanttracker.find")) {
-            sender.sendMessage(messageManager.getChatMessage("no_permission"));
+        Player player = (Player) sender;
+
+        if (!player.hasPermission("findvillager.use")) {
+            player.sendMessage(messageManager.getChatMessage("no_permission", player));
             return true;
         }
 
         if (args.length < 1) {
-            player.sendMessage(messageManager.getChatMessage("findvillager_usage"));
-            return true;
-        }
-
-        if (args[0].equalsIgnoreCase("particle")) {
-            particleManager.handleParticleCommand(player, args);
+            player.sendMessage(messageManager.getChatMessage("findvillager_usage", player));
             return true;
         }
 
         String searchTerm = String.join(" ", args);
         String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
-        
+
         if (enchantId == null) {
-            player.sendMessage(messageManager.getChatMessage("invalid_enchant"));
+            player.sendMessage(messageManager.getChatMessage("invalid_enchant", player));
             return true;
         }
 
         // Cancel all existing particles before showing new results
         particleManager.cancelAllParticles(player);
 
-        double radius = 50.0; // Default radius
-        List<Trade> trades = searchNearbyVillagerTrades(player, enchantId, radius);
+        // Search both database and nearby villagers
+        List<Trade> trades = new ArrayList<>();
+        trades.addAll(db.searchTrades(enchantId));
+        trades.addAll(searchNearbyVillagerTrades(player, enchantId, DEFAULT_RADIUS));
+
         if (trades.isEmpty()) {
-            player.sendMessage(messageManager.getChatMessage("no_found_trades"));
+            player.sendMessage(messageManager.getChatMessage("no_found_trades", player));
             return true;
         }
 
         for (Trade trade : trades) {
             String localName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
             Location loc = trade.getLocation();
-            String message = messageManager.format("found_trade_info",
-                    localName, trade.getLevel(), trade.getPrice(),
+            String message = messageManager.format("found_trade_info", player,
+                    localName, trade.getLevel(),
+                    trade.getPrice(),
                     loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
-                    trade.getRegionName());
+                    trade.getRegionName() != null ? trade.getRegionName() : "");
             
-            // Make the message clickable
-            TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/findvillager particle");
+            // Create clickable message
+            TextComponent textComponent = new TextComponent(message);
+            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/findvillager particle " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
             player.spigot().sendMessage(textComponent);
             
             // Spawn particles immediately for search results
             particleManager.spawnParticles(loc, player, false);
-            
-            // Draw a line between player and villager
-            particleManager.drawLine(player.getLocation(), loc, player, false);
         }
+
         return true;
+    }
+
+    private void handleParticle(Player player, String[] args) {
+        particleManager.handleParticleCommand(player, args);
     }
 
     @Override

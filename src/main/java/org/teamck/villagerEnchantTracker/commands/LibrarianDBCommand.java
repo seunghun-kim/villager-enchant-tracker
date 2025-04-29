@@ -43,13 +43,20 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player) || !sender.hasPermission("villagerenchanttracker.admin")) {
-            sender.sendMessage(messageManager.getChatMessage("no_permission"));
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(messageManager.getMessage("player_only", "en"));
+            return true;
+        }
+        
+        Player player = (Player) sender;
+        
+        if (!player.hasPermission("librariandb.use")) {
+            player.sendMessage(messageManager.getChatMessage("no_permission", player));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(messageManager.getChatMessage("usage"));
+            player.sendMessage(messageManager.getChatMessage("usage", player));
             return true;
         }
 
@@ -60,14 +67,14 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             case "delete" -> handleDelete(player, args);
             case "edit-description" -> handleEditDescription(player, args);
             case "particle" -> handleParticle(player, args);
-            default -> sender.sendMessage(messageManager.getChatMessage("invalid_subcommand"));
+            default -> player.sendMessage(messageManager.getChatMessage("invalid_subcommand", player));
         }
         return true;
     }
 
     private void handleCreate(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("create_usage"));
+            player.sendMessage(messageManager.getChatMessage("create_usage", player));
             return;
         }
 
@@ -77,22 +84,22 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
                 .orElse(null);
 
         if (!(target instanceof Villager villager)) {
-            player.sendMessage(messageManager.getChatMessage("no_villager_nearby"));
+            player.sendMessage(messageManager.getChatMessage("no_villager_nearby", player));
             return;
         }
 
         String description = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         boolean tradesAdded = db.addVillagerTrades(villager, description);
         if (tradesAdded) {
-            player.sendMessage(messageManager.getChatMessage("villager_trades_registered"));
+            player.sendMessage(messageManager.getChatMessage("villager_trades_registered", player));
         } else {
-            player.sendMessage(messageManager.getChatMessage("no_enchant_trades"));
+            player.sendMessage(messageManager.getChatMessage("no_enchant_trades", player));
         }
     }
 
     private void handleSearch(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("search_usage"));
+            player.sendMessage(messageManager.getChatMessage("search_usage", player));
             return;
         }
 
@@ -100,7 +107,7 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
         String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
         
         if (enchantId == null) {
-            player.sendMessage(messageManager.getChatMessage("invalid_enchant"));
+            player.sendMessage(messageManager.getChatMessage("invalid_enchant", player));
             return;
         }
 
@@ -109,20 +116,21 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
 
         List<Trade> trades = db.searchTrades(enchantId);
         if (trades.isEmpty()) {
-            player.sendMessage(messageManager.getChatMessage("no_found_trades"));
+            player.sendMessage(messageManager.getChatMessage("no_found_trades", player));
             return;
         }
 
         for (Trade trade : trades) {
             String localName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
             Location loc = trade.getLocation();
-            String message = messageManager.format("found_trade_info",
-                    localName, trade.getLevel(), trade.getPrice(),
+            String message = messageManager.format("found_trade_info", player,
+                    localName, trade.getLevel(),
+                    trade.getPrice(),
                     loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
-                    trade.getRegionName());
+                    trade.getDescription());
             
             // Make the message clickable
-            TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/librariandb particle");
+            TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/librariandb particle", player);
             player.spigot().sendMessage(textComponent);
             
             // Spawn particles immediately for search results
@@ -133,44 +141,46 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
     private void handleList(Player player, String[] args) {
         List<Trade> trades = db.listTrades();
         if (trades.isEmpty()) {
-            player.sendMessage(messageManager.getChatMessage("no_trades"));
+            player.sendMessage(messageManager.getChatMessage("no_trades", player));
             return;
         }
 
         String baseLanguage = messageManager.getBaseLanguageCode(player.getLocale());
-        player.sendMessage(messageManager.getChatMessage("trade_list_header"));
+        player.sendMessage(messageManager.getChatMessage("trade_list_header", player));
         for (Trade trade : trades) {
             String localName = messageManager.getEnchantName(trade.getEnchantId(), baseLanguage);
             Location loc = trade.getLocation();
-            String message = messageManager.format("trade_list_entry",
-                    trade.getId(), localName, trade.getLevel(), trade.getPrice(),
+            String message = messageManager.format("trade_list_entry", player,
+                    trade.getId(),
+                    localName, trade.getLevel(),
+                    trade.getPrice(),
                     loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
                     trade.getDescription());
             
             // Make the message clickable
-            TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/librariandb particle");
+            TextComponent textComponent = messageManager.createClickableMessage(message, loc, "/librariandb particle", player);
             player.spigot().sendMessage(textComponent);
         }
     }
 
     private void handleDelete(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("delete_usage"));
+            player.sendMessage(messageManager.getChatMessage("delete_usage", player));
             return;
         }
 
         try {
             int id = Integer.parseInt(args[1]);
             db.deleteTrade(id);
-            player.sendMessage(messageManager.getChatMessage("trade_deleted"));
+            player.sendMessage(messageManager.getChatMessage("trade_deleted", player));
         } catch (NumberFormatException e) {
-            player.sendMessage(messageManager.getChatMessage("id_must_be_number"));
+            player.sendMessage(messageManager.getChatMessage("id_must_be_number", player));
         }
     }
 
     private void handleEditDescription(Player player, String[] args) {
         if (args.length < 3) {
-            player.sendMessage(messageManager.getChatMessage("edit_description_usage"));
+            player.sendMessage(messageManager.getChatMessage("edit_description_usage", player));
             return;
         }
 
@@ -179,12 +189,12 @@ public class LibrarianDBCommand implements CommandExecutor, TabCompleter {
             String description = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
             boolean success = db.updateTradeDescription(id, description);
             if (success) {
-                player.sendMessage(messageManager.getChatMessage("description_updated"));
+                player.sendMessage(messageManager.getChatMessage("description_updated", player));
             } else {
-                player.sendMessage(messageManager.getChatMessage("trade_not_found"));
+                player.sendMessage(messageManager.getChatMessage("trade_not_found", player));
             }
         } catch (NumberFormatException e) {
-            player.sendMessage(messageManager.getChatMessage("id_must_be_number"));
+            player.sendMessage(messageManager.getChatMessage("id_must_be_number", player));
         }
     }
 

@@ -207,13 +207,15 @@ public class SQLiteDatabase implements Database {
     }
 
     @Override
-    public void deleteRegion(int id) {
+    public boolean deleteRegion(int id) {
         try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM Regions WHERE id = ?")) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     @Override
