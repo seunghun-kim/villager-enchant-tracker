@@ -1,4 +1,4 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.commands;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -14,6 +14,11 @@ import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.teamck.villagerEnchantTracker.core.Trade;
+import org.teamck.villagerEnchantTracker.core.VillagerRegion;
+import org.teamck.villagerEnchantTracker.database.Database;
+import org.teamck.villagerEnchantTracker.manager.MessageManager;
+import org.teamck.villagerEnchantTracker.manager.ParticleManager;
 
 import java.util.ArrayList;
 import java.util.List;

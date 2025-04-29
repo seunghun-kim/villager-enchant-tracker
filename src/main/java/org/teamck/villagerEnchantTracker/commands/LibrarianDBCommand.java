@@ -1,4 +1,4 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.commands;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -15,6 +15,10 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.teamck.villagerEnchantTracker.core.Trade;
+import org.teamck.villagerEnchantTracker.database.Database;
+import org.teamck.villagerEnchantTracker.manager.MessageManager;
+import org.teamck.villagerEnchantTracker.manager.ParticleManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;

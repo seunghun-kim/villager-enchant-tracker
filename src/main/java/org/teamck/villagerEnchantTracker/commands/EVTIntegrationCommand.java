@@ -7,11 +7,11 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.teamck.villagerEnchantTracker.Database;
-import org.teamck.villagerEnchantTracker.VillagerEnchantTracker;
-import org.teamck.villagerEnchantTracker.VillagerRegion;
-import org.teamck.villagerEnchantTracker.enchant.EnchantmentManager;
-import org.teamck.villagerEnchantTracker.MessageManager;
+import org.teamck.villagerEnchantTracker.database.Database;
+import org.teamck.villagerEnchantTracker.core.VillagerEnchantTracker;
+import org.teamck.villagerEnchantTracker.core.VillagerRegion;
+import org.teamck.villagerEnchantTracker.manager.EnchantmentManager;
+import org.teamck.villagerEnchantTracker.manager.MessageManager;
 
 import java.util.*;
 import java.util.stream.Collectors;

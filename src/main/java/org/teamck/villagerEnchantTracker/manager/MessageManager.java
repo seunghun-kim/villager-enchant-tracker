@@ -1,4 +1,4 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.manager;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -7,7 +7,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.teamck.villagerEnchantTracker.enchant.EnchantmentManager;
+import org.teamck.villagerEnchantTracker.manager.EnchantmentManager;
 
 import java.io.File;
 import java.util.HashMap;

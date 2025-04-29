@@ -1,7 +1,9 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.database;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Villager;
+import org.teamck.villagerEnchantTracker.core.Trade;
+import org.teamck.villagerEnchantTracker.core.VillagerRegion;
 
 import java.util.List;
 

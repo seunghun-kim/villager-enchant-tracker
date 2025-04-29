@@ -1,4 +1,4 @@
-package org.teamck.villagerEnchantTracker.enchant;
+package org.teamck.villagerEnchantTracker.manager;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.NamespacedKey;
@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.teamck.villagerEnchantTracker.VillagerEnchantTracker;
+import org.teamck.villagerEnchantTracker.core.VillagerEnchantTracker;
 import java.util.*;
 import java.util.stream.Collectors;
 

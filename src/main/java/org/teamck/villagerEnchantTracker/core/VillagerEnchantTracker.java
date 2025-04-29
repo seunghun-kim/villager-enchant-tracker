@@ -1,6 +1,12 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.teamck.villagerEnchantTracker.commands.FindVillagerCommand;
+import org.teamck.villagerEnchantTracker.commands.RegionCommand;
+import org.teamck.villagerEnchantTracker.database.Database;
+import org.teamck.villagerEnchantTracker.database.SQLiteDatabase;
+import org.teamck.villagerEnchantTracker.manager.MessageManager;
+import org.teamck.villagerEnchantTracker.commands.LibrarianDBCommand;
 import org.teamck.villagerEnchantTracker.commands.EVTIntegrationCommand;
 import java.sql.SQLException;
 

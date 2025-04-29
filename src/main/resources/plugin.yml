@@ -1,6 +1,6 @@
 name: VillagerEnchantTracker
 version: '0.2.0'
-main: org.teamck.villagerEnchantTracker.VillagerEnchantTracker
+main: org.teamck.villagerEnchantTracker.core.VillagerEnchantTracker
 api-version: '1.21'
 softdepend: [WorldEdit, FastAsyncWorldEdit]
 commands:

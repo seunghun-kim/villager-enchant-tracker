@@ -1,4 +1,4 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.database;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -8,6 +8,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.teamck.villagerEnchantTracker.core.Trade;
+import org.teamck.villagerEnchantTracker.core.VillagerRegion;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

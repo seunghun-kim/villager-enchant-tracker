@@ -1,4 +1,4 @@
-package org.teamck.villagerEnchantTracker;
+package org.teamck.villagerEnchantTracker.core;
 
 import org.bukkit.Location;
 
