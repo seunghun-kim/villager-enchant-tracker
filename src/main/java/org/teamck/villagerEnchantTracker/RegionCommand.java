@@ -66,8 +66,8 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
                     BlockVector3 min = selection.getMinimumPoint();
                     BlockVector3 max = selection.getMaximumPoint();
 
-                    org.bukkit.Location minLoc = new org.bukkit.Location(player.getWorld(), min.getX(), min.getY(), min.getZ());
-                    org.bukkit.Location maxLoc = new org.bukkit.Location(player.getWorld(), max.getX(), max.getY(), max.getZ());
+                    org.bukkit.Location minLoc = new org.bukkit.Location(player.getWorld(), min.x(), min.y(), min.z());
+                    org.bukkit.Location maxLoc = new org.bukkit.Location(player.getWorld(), max.x(), max.y(), max.z());
 
                     int regionId = db.createRegion(name, minLoc, maxLoc);
                     if (regionId != -1) {

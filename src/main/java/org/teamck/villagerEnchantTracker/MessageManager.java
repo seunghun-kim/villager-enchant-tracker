@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.teamck.villagerEnchantTracker.enchant.EnchantmentManager;
 
 import java.io.File;
 import java.util.HashMap;
@@ -136,7 +137,7 @@ public class MessageManager {
         if (!enchantId.startsWith("minecraft:")) {
             enchantId = "minecraft:" + enchantId;
         }
-        if (EnchantManager.getEnchant(enchantId) != null) {
+        if (EnchantmentManager.getEnchant(enchantId) != null) {
             plugin.getLogger().info("Found valid enchantment ID: " + enchantId);
             return enchantId;
         }

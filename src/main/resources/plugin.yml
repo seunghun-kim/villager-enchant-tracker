@@ -16,3 +16,20 @@ commands:
     description: Manage regions for villager trade tracking
     usage: /<command> [create|list|delete]
     permission: villagerenchanttracker.admin
+  evtintegration:
+    description: Integration commands for EasyVillagerTrade mod
+    usage: |
+      §6=== EVT Integration Commands ===
+      §e/evtintegration nearby [radius] [discountAmount]
+      §e/evtintegration region <regionName/*> [discountAmount]
+    permission: villagerenchanttracker.use
+
+permissions:
+  villagerenchanttracker.use:
+    description: Allows use of basic plugin features
+    default: true
+  villagerenchanttracker.admin:
+    description: Allows use of administrative commands
+    default: op
+    children:
+      villagerenchanttracker.use: true

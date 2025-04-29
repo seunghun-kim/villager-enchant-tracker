@@ -1,6 +1,7 @@
 package org.teamck.villagerEnchantTracker;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.teamck.villagerEnchantTracker.commands.EVTIntegrationCommand;
 import java.sql.SQLException;
 
 public final class VillagerEnchantTracker extends JavaPlugin {
@@ -29,6 +30,11 @@ public final class VillagerEnchantTracker extends JavaPlugin {
             RegionCommand regionCommand = new RegionCommand(db, messageManager, this);
             getCommand("villagerregion").setExecutor(regionCommand);
             getCommand("villagerregion").setTabCompleter(regionCommand);
+
+            // Register EVT integration command
+            EVTIntegrationCommand evtCommand = new EVTIntegrationCommand(this, db);
+            getCommand("evtintegration").setExecutor(evtCommand);
+            getCommand("evtintegration").setTabCompleter(evtCommand);
         } catch (SQLException e) {
             getLogger().severe("Failed to initialize database: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);

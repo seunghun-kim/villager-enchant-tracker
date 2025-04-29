@@ -2,6 +2,11 @@ package org.teamck.villagerEnchantTracker;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Villager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VillagerRegion {
     private final int id;
@@ -43,5 +48,24 @@ public class VillagerRegion {
         return x >= minX && x < maxX &&
                y >= minY && y < maxY &&
                z >= minZ && z < maxZ;
+    }
+
+    public List<Villager> getLibrariansInRegion() {
+        List<Villager> librarians = new ArrayList<>();
+        
+        // Get all entities in the region's world
+        for (Entity entity : world.getEntities()) {
+            if (!(entity instanceof Villager)) continue;
+            
+            Location loc = entity.getLocation();
+            if (contains(loc)) {
+                Villager villager = (Villager) entity;
+                if (villager.getProfession() == Villager.Profession.LIBRARIAN) {
+                    librarians.add(villager);
+                }
+            }
+        }
+
+        return librarians;
     }
 } 
