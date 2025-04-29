@@ -9,6 +9,7 @@ https://github.com/user-attachments/assets/4098bd03-362b-4079-b558-4b7bf99ae9cc
 - Register and manage librarian villager enchantment trades
 - Search for specific enchantments and track their locations
 - Visual location indicators using particle effects
+- Region-based villager trade management
 
 ## Commands
 
@@ -19,12 +20,18 @@ https://github.com/user-attachments/assets/4098bd03-362b-4079-b558-4b7bf99ae9cc
 - `delete <ID>`: Delete a specific trade entry.
 - `edit-description <ID> <description>`: Edit the description of a trade entry.
 
-### `/findvillager`
-- Find nearby librarian villagers and mark them with particles.
+### `/findvillager <enchantment>`
+- Find nearby librarian villagers with specific enchantments and mark them with particles.
+
+### `/villagerregion`
+- `create`: Create a new region for villager trade tracking.
+- `list`: List all registered regions.
+- `delete`: Delete a region.
 
 ## Permissions
 
-- `villagerenchanttracker.admin`: Admin permission
+- `villagerenchanttracker.admin`: Admin permission for managing trades and regions
+- `villagerenchanttracker.use`: Basic permission for searching enchantments
 
 ## Installation
 
@@ -74,6 +81,20 @@ particle-effects:
   line-points: 20        # Number of points in the particle line
   line-update-interval: 0.1  # Line update interval in seconds
 ```
+
+## Changelog
+
+### 0.2.0
+- Added region-based villager trade management with `/villagerregion` command
+- Enhanced `/findvillager` command to search for specific enchantments
+- Added WorldEdit integration for region selection
+- Added basic user permission (`villagerenchanttracker.use`)
+
+### 0.1.0
+- Initial release
+- Basic villager trade management
+- Enchantment search functionality
+- Particle effect visualization
 
 ## License
 
