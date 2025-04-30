@@ -61,8 +61,8 @@ invalid_coordinates: "§cInvalid coordinates. Please provide valid numbers."
 
 # EVT Integration commands
 evtintegration_header: "§6=== EVT Integration Commands ==="
-evtintegration_nearby_usage: "§e/evtintegration nearby [radius] [discountAmount]"
-evtintegration_region_usage: "§e/evtintegration region <regionName/*> [discountAmount]"
+evtintegration_nearby_usage: "§e/evtintegration nearby [radius]"
+evtintegration_region_usage: "§e/evtintegration region <regionName/*>"
 nearby_usage: "§eUsage: /evtintegration nearby <radius>"
 invalid_radius: "§cInvalid radius. Please enter a valid number."
 invalid_discount: "§cInvalid discount amount. Please enter a valid number."

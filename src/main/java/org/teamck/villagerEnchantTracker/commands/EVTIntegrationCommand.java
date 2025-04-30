@@ -105,15 +105,6 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
                     }
                 }
             }
-        } else if (args.length == 3) {
-            // Third argument: discount amount for both subcommands
-            String input = args[2].toLowerCase();
-            List<String> discounts = Arrays.asList("5", "10", "15", "20", "25", "30");
-            for (String discount : discounts) {
-                if (discount.startsWith(input)) {
-                    completions.add(discount);
-                }
-            }
         }
         
         return completions;

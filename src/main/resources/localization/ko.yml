@@ -61,8 +61,8 @@ invalid_coordinates: "§c잘못된 좌표입니다. 유효한 숫자를 입력�
 
 # EVT Integration commands
 evtintegration_header: "§6=== EVT 통합 명령어 ==="
-evtintegration_nearby_usage: "§e/evtintegration nearby [반경] [할인금액]"
-evtintegration_region_usage: "§e/evtintegration region <지역이름/*> [할인금액]"
+evtintegration_nearby_usage: "§e/evtintegration nearby [반경]"
+evtintegration_region_usage: "§e/evtintegration region <지역이름/*>"
 nearby_usage: "§e사용법: /evtintegration nearby <반경>"
 invalid_radius: "§c잘못된 반경입니다. 유효한 숫자를 입력해주세요."
 invalid_discount: "§c잘못된 할인금액입니다. 유효한 숫자를 입력해주세요."
