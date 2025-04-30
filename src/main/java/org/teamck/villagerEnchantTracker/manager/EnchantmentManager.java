@@ -30,26 +30,22 @@ public class EnchantmentManager {
     }
 
     // EVT 통합 관련 메서드
-    public static Set<String> getAllMaxLevelEnchantments() {
-        Set<String> maxLevelEnchantments = new HashSet<>();
+    public static Set<EnchantmentInfo> getAllMaxLevelEnchantments() {
+        Set<EnchantmentInfo> maxLevelEnchantments = new HashSet<>();
         
         for (Enchantment enchantment : Enchantment.values()) {
             String name = "minecraft:" + enchantment.getKey().getKey();
             int maxLevel = enchantment.getMaxLevel();
-            
-            // Skip enchantments that can't be obtained from villagers
-            if (enchantment.isCursed() || enchantment.isDiscoverable()) {
-                continue;
+            if (enchantment.isTradeable()) {
+                maxLevelEnchantments.add(new EnchantmentInfo(name, maxLevel, null));
             }
-            
-            maxLevelEnchantments.add(name + " " + maxLevel);
         }
         
         return maxLevelEnchantments;
     }
     
-    public static Set<String> getVillagerEnchantments(Villager villager) {
-        Set<String> enchantments = new HashSet<>();
+    public static Set<EnchantmentInfo> getVillagerEnchantments(Villager villager) {
+        Set<EnchantmentInfo> enchantments = new HashSet<>();
         
         plugin.getLogger().info("Checking trades for villager at: " + villager.getLocation());
         plugin.getLogger().info("Number of recipes: " + villager.getRecipes().size());
@@ -70,9 +66,8 @@ public class EnchantmentManager {
                                 .sum();
                         
                         String name = "minecraft:" + enchantment.getKey().getKey();
-                        String fullEnchant = String.format("%s %d %d", name, level, price);
-                        enchantments.add(fullEnchant);
-                        plugin.getLogger().info("Added enchantment: " + fullEnchant + " with price: " + price);
+                        enchantments.add(new EnchantmentInfo(name, level, price));
+                        plugin.getLogger().info("Added enchantment: " + name + " level " + level + " price " + price);
                     });
                 } else {
                     plugin.getLogger().warning("ItemMeta is not EnchantmentStorageMeta");
@@ -82,5 +77,92 @@ public class EnchantmentManager {
         
         plugin.getLogger().info("Total enchantments found for villager: " + enchantments.size());
         return enchantments;
+    }
+
+    public static EnchantmentInfo parseEnchantmentString(String enchantString) {
+        String[] parts = enchantString.split(" ");
+        if (parts.length < 2 || parts.length > 3) {
+            throw new IllegalArgumentException("Invalid enchantment string format: " + enchantString);
+        }
+        Integer price = parts.length == 3 ? Integer.parseInt(parts[2]) : null;
+        return new EnchantmentInfo(parts[0], Integer.parseInt(parts[1]), price);
+    }
+
+    public static String formatEnchantmentInfo(EnchantmentInfo info) {
+        return info.getPrice() != null ? 
+            String.format("%s %d %d", info.getId(), info.getLevel(), info.getPrice()) :
+            String.format("%s %d", info.getId(), info.getLevel());
+    }
+
+    public static class EnchantmentInfo {
+        private final String id;
+        private final int level;
+        private final Integer price;  // nullable
+
+        public EnchantmentInfo(String id, int level, Integer price) {
+            this.id = id;
+            this.level = level;
+            this.price = price;
+        }
+
+        public String getId() { return id; }
+        public int getLevel() { return level; }
+        public Integer getPrice() { return price; }
+
+        /**
+         * 두 인챈트의 기본적인 동등성을 비교합니다 (ID만 비교).
+         * 새로운 인챈트 필터링에 사용됩니다.
+         */
+        public boolean hasSameEnchantment(EnchantmentInfo other) {
+            return Objects.equals(id, other.id);
+        }
+
+        /**
+         * 한 인챈트가 다른 인챈트를 대체할 수 있는지 확인합니다.
+         * 같은 종류의 인챈트이고 레벨이 같거나 더 높으면 true를 반환합니다.
+         */
+        public boolean canReplace(EnchantmentInfo other) {
+            return Objects.equals(id, other.id) && level >= other.level;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            EnchantmentInfo that = (EnchantmentInfo) o;
+            // ID와 레벨만 비교하고 가격은 무시
+            return level == that.level && Objects.equals(id, that.id);
+        }
+
+        @Override
+        public int hashCode() {
+            // equals와 일관성을 위해 price는 제외
+            return Objects.hash(id, level);
+        }
+
+        @Override
+        public String toString() {
+            return formatEnchantmentInfo(this);
+        }
+    }
+    public static Set<EnchantmentInfo> filterNewEnchants(Set<EnchantmentInfo> allMaxEnchants, Set<EnchantmentInfo> existingEnchants) {
+        Set<EnchantmentInfo> newEnchants = new HashSet<>();
+        
+        for (EnchantmentInfo maxEnchant : allMaxEnchants) {
+            boolean shouldAdd = true;
+            
+            for (EnchantmentInfo existing : existingEnchants) {
+                if (existing.canReplace(maxEnchant)) {
+                    shouldAdd = false;
+                    break;
+                }
+            }
+            
+            if (shouldAdd) {
+                newEnchants.add(maxEnchant);
+            }
+        }
+        
+        return newEnchants;
     }
 } 
