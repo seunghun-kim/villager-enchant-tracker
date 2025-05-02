@@ -1,35 +1,29 @@
 name: VillagerEnchantTracker
-version: '0.2.0'
+version: '0.2.1-dev'
 main: org.teamck.villagerEnchantTracker.core.VillagerEnchantTracker
 api-version: '1.21'
 softdepend: [WorldEdit, FastAsyncWorldEdit]
 commands:
-  librariandb:
-    description: Manage librarian villager trades
-    usage: /<command> [create|search|list|delete|edit-description|particle]
-    permission: villagerenchanttracker.admin
   findvillager:
-    description: Find nearby villagers with specific enchantments
+    description: Find nearby villagers with specific enchantments and mark them with particles
     usage: /<command> <enchantment>
     permission: villagerenchanttracker.use
-  villagerregion:
-    description: Manage regions for villager trade tracking
-    usage: /<command> [create|list|delete]
-    permission: villagerenchanttracker.admin
-  evtintegration:
-    description: Integration commands for EasyVillagerTrade mod
+  vet:
+    description: Main command for VillagerEnchantTracker
     usage: |
-      §6=== EVT Integration Commands ===
-      §e/evtintegration nearby [radius] [discountAmount]
-      §e/evtintegration region <regionName/*> [discountAmount]
+      §6=== VillagerEnchantTracker Commands ===
+      §e/vet trade [create|search|list|delete|edit-description]
+      §e/vet region [create|list|delete|edit]
+      §e/vet evt [nearby|region]
     permission: villagerenchanttracker.use
+    aliases: [villagerenchanttracker]
 
 permissions:
   villagerenchanttracker.use:
-    description: Allows use of basic plugin features
+    description: Allows use of read-only features (search, list, etc)
     default: true
-  villagerenchanttracker.admin:
-    description: Allows use of administrative commands
+  villagerenchanttracker.write:
+    description: Allows use of write features (create, delete, edit, etc)
     default: op
     children:
       villagerenchanttracker.use: true

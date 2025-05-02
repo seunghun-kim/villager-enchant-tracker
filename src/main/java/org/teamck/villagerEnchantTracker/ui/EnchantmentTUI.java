@@ -41,17 +41,17 @@ public class EnchantmentTUI {
     public void render() {
         // Header
         player.sendMessage("");
-        player.sendMessage(messageManager.getChatMessage("tui_header", player));
+        player.sendMessage(messageManager.getMessage("tui_header", player));
         
         // Tab buttons
         renderTabs();
         
         // Content area
-        player.sendMessage(messageManager.getChatMessage("tui_divider", player));
+        player.sendMessage(messageManager.getMessage("tui_divider", player));
         
         // Column headers
-        player.sendMessage(messageManager.format("tui_enchant_header", player, "Enchantment", "Lvl"));
-        player.sendMessage(messageManager.getChatMessage("tui_divider", player));
+        player.sendMessage(String.format(messageManager.getMessage("tui_enchant_header", player), "Enchantment", "Lvl"));
+        player.sendMessage(messageManager.getMessage("tui_divider", player));
         
         // Items
         renderItems();
@@ -59,18 +59,18 @@ public class EnchantmentTUI {
         // Fill empty space
         int emptyLines = ITEMS_PER_PAGE - getCurrentPageItems().size();
         for (int i = 0; i < emptyLines; i++) {
-            player.sendMessage(messageManager.getChatMessage("tui_empty_line", player));
+            player.sendMessage(messageManager.getMessage("tui_empty_line", player));
         }
         
         // Navigation
         renderNavigation();
         
         // Feedback area
-        player.sendMessage(messageManager.getChatMessage("tui_divider", player));
+        player.sendMessage(messageManager.getMessage("tui_divider", player));
         if (!feedbackMessage.isEmpty()) {
             player.sendMessage(feedbackMessage);
         } else {
-            player.sendMessage(messageManager.getChatMessage("tui_default_feedback", player));
+            player.sendMessage(messageManager.getMessage("tui_default_feedback", player));
         }
         
         // Close button
@@ -83,12 +83,12 @@ public class EnchantmentTUI {
         // New enchants tab
         TextComponent newEnchantsTab = new TextComponent(
             showingNewEnchants ? 
-                messageManager.getChatMessage("tui_new_enchants_tab", player) : 
-                messageManager.getChatMessage("tui_new_enchants_tab_inactive", player)
+                messageManager.getMessage("tui_new_enchants_tab", player) : 
+                messageManager.getMessage("tui_new_enchants_tab_inactive", player)
         );
         newEnchantsTab.setClickEvent(new ClickEvent(
             ClickEvent.Action.RUN_COMMAND,
-            "/evtintegration tui toggle"
+            "/vet evt tui toggle"
         ));
         tabs.addExtra(newEnchantsTab);
         
@@ -97,12 +97,12 @@ public class EnchantmentTUI {
         // Existing enchants tab
         TextComponent existingEnchantsTab = new TextComponent(
             !showingNewEnchants ? 
-                messageManager.getChatMessage("tui_existing_enchants_tab", player) : 
-                messageManager.getChatMessage("tui_existing_enchants_tab_inactive", player)
+                messageManager.getMessage("tui_existing_enchants_tab", player) : 
+                messageManager.getMessage("tui_existing_enchants_tab_inactive", player)
         );
         existingEnchantsTab.setClickEvent(new ClickEvent(
             ClickEvent.Action.RUN_COMMAND,
-            "/evtintegration tui toggle"
+            "/vet evt tui toggle"
         ));
         tabs.addExtra(existingEnchantsTab);
         
@@ -140,32 +140,32 @@ public class EnchantmentTUI {
         
         if (hasPreviousPage()) {
             TextComponent prev = new TextComponent(
-                messageManager.getChatMessage("tui_nav_prev_active", player)
+                messageManager.getMessage("tui_nav_prev_active", player)
             );
             prev.setClickEvent(new ClickEvent(
                 ClickEvent.Action.RUN_COMMAND,
-                "/evtintegration tui prev"
+                "/vet evt tui prev"
             ));
             navigation.addExtra(prev);
         } else {
-            navigation.addExtra(messageManager.getChatMessage("tui_nav_prev_inactive", player));
+            navigation.addExtra(messageManager.getMessage("tui_nav_prev_inactive", player));
         }
         
         navigation.addExtra(" ");
-        navigation.addExtra(messageManager.format("tui_nav_page", player, currentPage + 1, getTotalPages()));
+        navigation.addExtra(String.format(messageManager.getMessage("tui_nav_page", player), currentPage + 1, getTotalPages()));
         navigation.addExtra(" ");
         
         if (hasNextPage()) {
             TextComponent next = new TextComponent(
-                messageManager.getChatMessage("tui_nav_next_active", player)
+                messageManager.getMessage("tui_nav_next_active", player)
             );
             next.setClickEvent(new ClickEvent(
                 ClickEvent.Action.RUN_COMMAND,
-                "/evtintegration tui next"
+                "/vet evt tui next"
             ));
             navigation.addExtra(next);
         } else {
-            navigation.addExtra(messageManager.getChatMessage("tui_nav_next_inactive", player));
+            navigation.addExtra(messageManager.getMessage("tui_nav_next_inactive", player));
         }
         
         player.spigot().sendMessage(navigation);
@@ -173,11 +173,11 @@ public class EnchantmentTUI {
 
     private void renderCloseButton() {
         TextComponent close = new TextComponent(
-            messageManager.getChatMessage("tui_close_button", player)
+            messageManager.getMessage("tui_close_button", player)
         );
         close.setClickEvent(new ClickEvent(
             ClickEvent.Action.RUN_COMMAND,
-            "/evtintegration tui close"
+            "/vet evt tui close"
         ));
         player.spigot().sendMessage(close);
     }
@@ -187,7 +187,7 @@ public class EnchantmentTUI {
         
         // Create the main visible component
         TextComponent priceComponent = new TextComponent(
-            messageManager.format("tui_price_button", player, price)
+            String.format(messageManager.getMessage("tui_price_button", player), price)
         );
         
         // Add minecraft: prefix if not present
@@ -202,14 +202,14 @@ public class EnchantmentTUI {
         TextComponent hiddenFeedback = new TextComponent(" ");
         hiddenFeedback.setClickEvent(new ClickEvent(
             ClickEvent.Action.RUN_COMMAND,
-            String.format("/evtintegration tui feedback %s %d %d", enchantId, level, price)
+            String.format("/vet evt tui feedback %s %d %d", enchantId, level, price)
         ));
         
         // Create the hover text that shows both commands
         String enchantName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
         BaseComponent[] hoverComponents = new BaseComponent[] {
             new TextComponent(
-                messageManager.format("tui_price_button_hover", player, enchantName, level, price)
+                String.format(messageManager.getMessage("tui_price_button_hover", player), enchantName, level, price)
             )
         };
         
@@ -254,7 +254,7 @@ public class EnchantmentTUI {
                 break;
             case "close":
                 plugin.getLogger().info("Closing TUI");
-                player.sendMessage(messageManager.getChatMessage("tui_closed", player));
+                player.sendMessage(messageManager.getMessage("tui_closed", player));
                 return true;
             case "feedback":
                 if (args.length >= 3) {
@@ -270,7 +270,7 @@ public class EnchantmentTUI {
                             enchantId.replace("minecraft:", ""), 
                             messageManager.getBaseLanguageCode(player.getLocale())
                         );
-                        feedbackMessage = messageManager.format("tui_price_added_feedback", player, enchantName, level, price);
+                        feedbackMessage = String.format(messageManager.getMessage("tui_price_added_feedback", player), enchantName, level, price);
                         
                     } catch (NumberFormatException e) {
                         plugin.getLogger().warning(String.format("Invalid number in feedback command: %s", String.join(" ", args)));
@@ -313,7 +313,7 @@ public class EnchantmentTUI {
     }
 
     public Inventory createInventory() {
-        Inventory inventory = Bukkit.createInventory(null, 54, messageManager.getMessage("enchantment-tui-title", "en"));
+        Inventory inventory = Bukkit.createInventory(null, 54, messageManager.getMessage("enchantment-tui-title", player));
 
         List<EnchantmentManager.EnchantmentInfo> currentPageItems = getCurrentPageItems();
         int slot = 0;
@@ -325,14 +325,14 @@ public class EnchantmentTUI {
                 List<String> lore = new ArrayList<>();
                 if (showingNewEnchants) {
                     meta.setDisplayName(ChatColor.GREEN + enchant.getId());
-                    lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-click-to-add", "en"));
+                    lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-click-to-add", player));
                 } else {
                     meta.setDisplayName(ChatColor.YELLOW + enchant.getId());
-                    lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-level", "en") + ": " + enchant.getLevel());
+                    lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-level", player) + ": " + enchant.getLevel());
                     if (enchant.getPrice() != null) {
-                        lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-price", "en") + ": " + enchant.getPrice());
+                        lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-price", player) + ": " + enchant.getPrice());
                     }
-                    lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-click-to-remove", "en"));
+                    lore.add(ChatColor.GRAY + messageManager.getMessage("enchantment-tui-click-to-remove", player));
                 }
                 meta.setLore(lore);
                 item.setItemMeta(meta);
@@ -345,7 +345,7 @@ public class EnchantmentTUI {
             ItemStack prevButton = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prevButton.getItemMeta();
             if (prevMeta != null) {
-                prevMeta.setDisplayName(ChatColor.YELLOW + messageManager.getMessage("enchantment-tui-previous-page", "en"));
+                prevMeta.setDisplayName(ChatColor.YELLOW + messageManager.getMessage("enchantment-tui-previous-page", player));
                 prevButton.setItemMeta(prevMeta);
             }
             inventory.setItem(45, prevButton);
@@ -355,7 +355,7 @@ public class EnchantmentTUI {
             ItemStack nextButton = new ItemStack(Material.ARROW);
             ItemMeta nextMeta = nextButton.getItemMeta();
             if (nextMeta != null) {
-                nextMeta.setDisplayName(ChatColor.YELLOW + messageManager.getMessage("enchantment-tui-next-page", "en"));
+                nextMeta.setDisplayName(ChatColor.YELLOW + messageManager.getMessage("enchantment-tui-next-page", player));
                 nextButton.setItemMeta(nextMeta);
             }
             inventory.setItem(53, nextButton);
@@ -366,8 +366,8 @@ public class EnchantmentTUI {
         ItemMeta toggleMeta = toggleButton.getItemMeta();
         if (toggleMeta != null) {
             toggleMeta.setDisplayName(ChatColor.YELLOW + (showingNewEnchants ? 
-                messageManager.getMessage("enchantment-tui-show-existing", "en") : 
-                messageManager.getMessage("enchantment-tui-show-new", "en")));
+                messageManager.getMessage("enchantment-tui-show-existing", player) : 
+                messageManager.getMessage("enchantment-tui-show-new", player)));
             toggleButton.setItemMeta(toggleMeta);
         }
         inventory.setItem(49, toggleButton);

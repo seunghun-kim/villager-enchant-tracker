@@ -20,6 +20,7 @@ import org.teamck.villagerEnchantTracker.core.VillagerRegion;
 import org.teamck.villagerEnchantTracker.database.Database;
 import org.teamck.villagerEnchantTracker.manager.MessageManager;
 import org.teamck.villagerEnchantTracker.manager.ParticleManager;
+import org.teamck.villagerEnchantTracker.manager.EnchantmentManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
     }
 
     public List<Trade> searchNearbyVillagerTrades(Player player, String enchantId, double radius) {
+        final String normalizedEnchantId = EnchantmentManager.normalizeEnchantmentId(enchantId);
         List<Trade> trades = new ArrayList<>();
         for (Entity entity : player.getNearbyEntities(radius, radius, radius)) {
             if (entity instanceof Villager villager) {
@@ -47,7 +49,7 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
                     ItemStack result = recipe.getResult();
                     if (result.getType() == Material.ENCHANTED_BOOK && result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
                         meta.getStoredEnchants().forEach((enchant, level) -> {
-                            if (("minecraft:" + enchant.getKey().getKey()).equals(enchantId)) {
+                            if (EnchantmentManager.normalizeEnchantmentId("minecraft:" + enchant.getKey().getKey()).equals(normalizedEnchantId)) {
                                 int price = recipe.getIngredients().stream()
                                         .filter(i -> i.getType() == Material.EMERALD)
                                         .mapToInt(ItemStack::getAmount)
@@ -61,7 +63,7 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
                                         break;
                                     }
                                 }
-                                trades.add(new Trade(0, enchantId, level, price, villager.getLocation(), "", regionName));
+                                trades.add(new Trade(villager.getUniqueId().toString(), normalizedEnchantId, level, price, "", regionName));
                             }
                         });
                     }
@@ -73,33 +75,29 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(messageManager.getMessage("player_only", "en"));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(messageManager.getMessage("player_only", sender));
             return true;
         }
 
-        Player player = (Player) sender;
-
-        if (!player.hasPermission("findvillager.use")) {
-            player.sendMessage(messageManager.getChatMessage("no_permission", player));
+        if (!player.hasPermission("villagerenchanttracker.use")) {
+            player.sendMessage(messageManager.getMessage("no_permission", player));
             return true;
         }
 
         if (args.length < 1) {
-            player.sendMessage(messageManager.getChatMessage("findvillager_usage", player));
+            player.sendMessage(messageManager.getMessage("findvillager_usage", player));
             return true;
         }
 
         String searchTerm = String.join(" ", args);
         String enchantId = messageManager.getEnchantIdFromLocalName(searchTerm, messageManager.getBaseLanguageCode(player.getLocale()));
+        enchantId = EnchantmentManager.normalizeEnchantmentId(enchantId);
 
         if (enchantId == null) {
-            player.sendMessage(messageManager.getChatMessage("invalid_enchant", player));
+            player.sendMessage(messageManager.getMessage("invalid_enchant", player));
             return true;
         }
-
-        // Cancel all existing particles before showing new results
-        particleManager.cancelAllParticles(player);
 
         // Search both database and nearby villagers
         List<Trade> trades = new ArrayList<>();
@@ -107,14 +105,18 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
         trades.addAll(searchNearbyVillagerTrades(player, enchantId, DEFAULT_RADIUS));
 
         if (trades.isEmpty()) {
-            player.sendMessage(messageManager.getChatMessage("no_found_trades", player));
+            player.sendMessage(messageManager.getMessage("no_found_trades", player));
             return true;
         }
 
-        for (Trade trade : trades) {
+        // Cancel all existing particles before showing new results
+        particleManager.cancelAllParticles(player);
+        for (int i = 0; i < trades.size(); i++) {
+            Trade trade = trades.get(i);
             String localName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
             Location loc = trade.getLocation();
-            String message = messageManager.format("found_trade_info", player,
+            String message = String.format(messageManager.getMessage("found_trade_info", player),
+                    i + 1, // 거래 번호 (1부터 시작)
                     localName, trade.getLevel(),
                     trade.getPrice(),
                     loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
@@ -122,23 +124,19 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
             
             // Create clickable message
             TextComponent textComponent = new TextComponent(message);
-            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/findvillager particle " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
+            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/vet particle " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
             player.spigot().sendMessage(textComponent);
             
-            // Spawn particles immediately for search results
+            // Spawn particles immediately for search results. If there are multiple results, they will be spawned simultaneously.
             particleManager.spawnParticles(loc, player, false);
         }
 
         return true;
     }
 
-    private void handleParticle(Player player, String[] args) {
-        particleManager.handleParticleCommand(player, args);
-    }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!(sender instanceof Player player) || !sender.hasPermission("villagerenchanttracker.find")) {
+        if (!(sender instanceof Player player) || !player.hasPermission("villagerenchanttracker.use")) {
             return new ArrayList<>();
         }
 
@@ -147,7 +145,6 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
         }
-
         return new ArrayList<>();
     }
 } 

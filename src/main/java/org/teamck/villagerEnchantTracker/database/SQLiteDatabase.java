@@ -3,6 +3,8 @@ package org.teamck.villagerEnchantTracker.database;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -10,10 +12,13 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.teamck.villagerEnchantTracker.core.Trade;
 import org.teamck.villagerEnchantTracker.core.VillagerRegion;
+import org.teamck.villagerEnchantTracker.manager.EnchantmentManager;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SQLiteDatabase implements Database {
     final Connection connection;
@@ -50,11 +55,12 @@ public class SQLiteDatabase implements Database {
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS Trades (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    enchant_id_string TEXT,
-                    level INTEGER,
-                    price INTEGER,
-                    location TEXT,
-                    description TEXT
+                    villager_uuid TEXT NOT NULL,
+                    enchant_id_string TEXT NOT NULL,
+                    level INTEGER NOT NULL,
+                    price INTEGER NOT NULL,
+                    description TEXT,
+                    UNIQUE(villager_uuid, enchant_id_string)
                 )
             """);
         } catch (SQLException e) {
@@ -63,63 +69,47 @@ public class SQLiteDatabase implements Database {
     }
 
     @Override
-    public void createTrade(String enchantId, int level, int price, Location location, String description) {
+    public boolean addTrade(Trade trade) {
         try (PreparedStatement stmt = connection.prepareStatement(
-                "INSERT INTO Trades (enchant_id_string, level, price, location, description) VALUES (?, ?, ?, ?, ?)")) {
-            stmt.setString(1, enchantId);
-            stmt.setInt(2, level);
-            stmt.setInt(3, price);
-            stmt.setString(4, location.getX() + "," + location.getY() + "," + location.getZ());
-            stmt.setString(5, description);
+                "INSERT OR REPLACE INTO Trades (villager_uuid, enchant_id_string, level, price, description) VALUES (?, ?, ?, ?, ?)")) {
+            stmt.setString(1, trade.getVillagerUuid());
+            stmt.setString(2, EnchantmentManager.normalizeEnchantmentId(trade.getEnchantId()));
+            stmt.setInt(3, trade.getLevel());
+            stmt.setInt(4, trade.getPrice());
+            stmt.setString(5, trade.getDescription());
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-    }
-
-    @Override
-    public boolean addVillagerTrades(Villager villager, String description) {
-        boolean hasEnchantTrades = false;
-        for (MerchantRecipe recipe : villager.getRecipes()) {
-            ItemStack result = recipe.getResult();
-            if (result.getType() == Material.ENCHANTED_BOOK && result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
-                hasEnchantTrades = true;
-                meta.getStoredEnchants().forEach((enchant, level) -> {
-                    int price = recipe.getIngredients().stream()
-                            .filter(i -> i.getType() == Material.EMERALD)
-                            .mapToInt(ItemStack::getAmount)
-                            .sum();
-                    createTrade("minecraft:" + enchant.getKey().getKey(), level, price, villager.getLocation(), description);
-                });
-            }
-        }
-        return hasEnchantTrades;
     }
 
     @Override
     public List<Trade> searchTrades(String enchantId) {
         List<Trade> trades = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Trades WHERE enchant_id_string = ?")) {
-            stmt.setString(1, enchantId);
+            stmt.setString(1, EnchantmentManager.normalizeEnchantmentId(enchantId));
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                String[] locParts = rs.getString("location").split(",");
-                // Get the world from the first available world (since we don't store world info in Trades table)
-                Location loc = new Location(Bukkit.getWorlds().get(0),
-                        Double.parseDouble(locParts[0]), Double.parseDouble(locParts[1]), Double.parseDouble(locParts[2]));
-                
-                // Check if the trade is in any region
-                String regionName = null;
-                for (VillagerRegion region : listRegions()) {
-                    // Only check regions in the same world
-                    if (region.getWorld().equals(loc.getWorld()) && region.contains(loc)) {
-                        regionName = region.getName();
-                        break;
+                Trade trade = new Trade(rs.getInt("id"), rs.getString("villager_uuid"), rs.getString("enchant_id_string"),
+                        rs.getInt("level"), rs.getInt("price"), rs.getString("description"), null);
+
+                Villager villager = trade.getVillager();
+                boolean added = false;
+                if (villager != null) {
+                    for (VillagerRegion region : listRegions()) {
+                        if (region.getWorld().equals(villager.getWorld()) && region.contains(villager.getLocation())) {
+                            trades.add(new Trade(trade.getId(), trade.getVillagerUuid(), trade.getEnchantId(), trade.getLevel(),
+                                    trade.getPrice(), trade.getDescription(), region.getName()));
+                            added = true;
+                            break;
+                        }
                     }
                 }
-                
-                trades.add(new Trade(rs.getInt("id"), rs.getString("enchant_id_string"), rs.getInt("level"),
-                        rs.getInt("price"), loc, rs.getString("description"), regionName));
+                if (!added) {
+                    trades.add(trade);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -130,26 +120,32 @@ public class SQLiteDatabase implements Database {
     @Override
     public List<Trade> listTrades() {
         List<Trade> trades = new ArrayList<>();
+        Set<Integer> addedIds = new HashSet<>();
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM Trades")) {
             while (rs.next()) {
-                String[] locParts = rs.getString("location").split(",");
-                // Get the world from the first available world (since we don't store world info in Trades table)
-                Location loc = new Location(Bukkit.getWorlds().get(0),
-                        Double.parseDouble(locParts[0]), Double.parseDouble(locParts[1]), Double.parseDouble(locParts[2]));
-                
-                // Check if the trade is in any region
-                String regionName = null;
-                for (VillagerRegion region : listRegions()) {
-                    // Only check regions in the same world
-                    if (region.getWorld().equals(loc.getWorld()) && region.contains(loc)) {
-                        regionName = region.getName();
-                        break;
+                Trade trade = new Trade(rs.getInt("id"), rs.getString("villager_uuid"),
+                        EnchantmentManager.normalizeEnchantmentId(rs.getString("enchant_id_string")),
+                        rs.getInt("level"), rs.getInt("price"), rs.getString("description"), null);
+
+                Villager villager = trade.getVillager();
+                boolean added = false;
+                if (villager != null) {
+                    for (VillagerRegion region : listRegions()) {
+                        if (region.getWorld().equals(villager.getWorld()) && region.contains(villager.getLocation())) {
+                            Trade regionTrade = new Trade(trade.getId(), trade.getVillagerUuid(), trade.getEnchantId(), trade.getLevel(),
+                                    trade.getPrice(), trade.getDescription(), region.getName());
+                            if (addedIds.add(regionTrade.getId())) {
+                                trades.add(regionTrade);
+                                added = true;
+                            }
+                            break;
+                        }
                     }
                 }
-                
-                trades.add(new Trade(rs.getInt("id"), rs.getString("enchant_id_string"), rs.getInt("level"),
-                        rs.getInt("price"), loc, rs.getString("description"), regionName));
+                if (!added && addedIds.add(trade.getId())) {
+                    trades.add(trade);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -159,7 +155,8 @@ public class SQLiteDatabase implements Database {
 
     @Override
     public void deleteTrade(int id) {
-        try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM Trades WHERE id = ?")) {
+        try (PreparedStatement stmt = connection.prepareStatement(
+                "DELETE FROM Trades WHERE id = ?")) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -281,18 +278,67 @@ public class SQLiteDatabase implements Database {
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM Trades")) {
             while (rs.next()) {
-                String[] locParts = rs.getString("location").split(",");
-                Location loc = new Location(Bukkit.getWorlds().get(0),
-                        Double.parseDouble(locParts[0]), Double.parseDouble(locParts[1]), Double.parseDouble(locParts[2]));
+                Trade trade = new Trade(rs.getInt("id"), rs.getString("villager_uuid"),
+                        EnchantmentManager.normalizeEnchantmentId(rs.getString("enchant_id_string")),
+                        rs.getInt("level"), rs.getInt("price"), rs.getString("description"), null);
                 
-                if (region.contains(loc)) {
-                    trades.add(new Trade(rs.getInt("id"), rs.getString("enchant_id_string"), rs.getInt("level"),
-                            rs.getInt("price"), loc, rs.getString("description"), region.getName()));
+                Villager villager = trade.getVillager();
+                if (villager != null && region.contains(villager.getLocation())) {
+                    trades.add(new Trade(trade.getId(), trade.getVillagerUuid(), trade.getEnchantId(), trade.getLevel(),
+                            trade.getPrice(), trade.getDescription(), region.getName()));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return trades;
+    }
+
+    @Override
+    public List<Trade> getTradesByVillager(String villagerUuid) {
+        List<Trade> trades = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Trades WHERE villager_uuid = ?")) {
+            stmt.setString(1, villagerUuid);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Trade trade = new Trade(rs.getInt("id"), villagerUuid,
+                        EnchantmentManager.normalizeEnchantmentId(rs.getString("enchant_id_string")),
+                        rs.getInt("level"), rs.getInt("price"), rs.getString("description"), null);
+                
+                // Check if the trade is in any region
+                Villager villager = trade.getVillager();
+                if (villager != null) {
+                    for (VillagerRegion region : listRegions()) {
+                        // Only check regions in the same world
+                        if (region.getWorld().equals(villager.getWorld()) && region.contains(villager.getLocation())) {
+                            trades.add(new Trade(trade.getId(), trade.getVillagerUuid(), trade.getEnchantId(), trade.getLevel(),
+                                    trade.getPrice(), trade.getDescription(), region.getName()));
+                            break;
+                        }
+                    }
+                    if (!trades.contains(trade)) {
+                        trades.add(trade);
+                    }
+                } else {
+                    trades.add(trade);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return trades;
+    }
+
+    @Override
+    public boolean updateRegionName(int id, String newName) {
+        try (PreparedStatement stmt = connection.prepareStatement("UPDATE Regions SET name = ? WHERE id = ?")) {
+            stmt.setString(1, newName);
+            stmt.setInt(2, id);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 } 

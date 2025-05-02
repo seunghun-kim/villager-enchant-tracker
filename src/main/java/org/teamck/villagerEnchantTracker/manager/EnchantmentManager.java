@@ -16,7 +16,7 @@ public class EnchantmentManager {
 
     // 기본 Enchantment 관리 메서드
     public static Enchantment getEnchant(String enchantId) {
-        return Enchantment.getByKey(NamespacedKey.minecraft(enchantId.replace("minecraft:", "")));
+        return Enchantment.getByKey(NamespacedKey.minecraft(normalizeEnchantmentId(enchantId).replace("minecraft:", "")));
     }
 
     public static boolean isValidLevel(Enchantment enchant, int level) {
@@ -25,7 +25,7 @@ public class EnchantmentManager {
 
     public static List<String> getAllEnchantIds() {
         return Arrays.stream(Enchantment.values())
-                .map(enchant -> "minecraft:" + enchant.getKey().getKey())
+                .map(enchant -> normalizeEnchantmentId("minecraft:" + enchant.getKey().getKey()))
                 .collect(Collectors.toList());
     }
 
@@ -65,7 +65,7 @@ public class EnchantmentManager {
                                 .mapToInt(ItemStack::getAmount)
                                 .sum();
                         
-                        String name = "minecraft:" + enchantment.getKey().getKey();
+                        String name = normalizeEnchantmentId("minecraft:" + enchantment.getKey().getKey());
                         enchantments.add(new EnchantmentInfo(name, level, price));
                         plugin.getLogger().info("Added enchantment: " + name + " level " + level + " price " + price);
                     });
@@ -100,7 +100,7 @@ public class EnchantmentManager {
         private final Integer price;  // nullable
 
         public EnchantmentInfo(String id, int level, Integer price) {
-            this.id = id;
+            this.id = EnchantmentManager.normalizeEnchantmentId(id);
             this.level = level;
             this.price = price;
         }
@@ -164,5 +164,24 @@ public class EnchantmentManager {
         }
         
         return newEnchants;
+    }
+
+    /**
+     * Normalize any enchantment id string to the format 'minecraft:xxx'.
+     * Accepts 'enchantments.minecraft.fortune', 'minecraft.fortune', 'fortune', etc.
+     * Handles multiple 'minecraft:' prefixes by stripping them all before adding one back.
+     */
+    public static String normalizeEnchantmentId(String id) {
+        if (id == null) return null;
+        String key = id.trim();
+        if (key.startsWith("enchantments.")) {
+            key = key.substring("enchantments.".length());
+        }
+        // Repeatedly strip 'minecraft:' prefix to handle cases like 'minecraft:minecraft:breach'
+        while (key.startsWith("minecraft:")) {
+            key = key.substring("minecraft:".length());
+        }
+        key = key.toLowerCase();
+        return "minecraft:" + key;
     }
 } 

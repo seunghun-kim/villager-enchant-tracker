@@ -1,14 +1,15 @@
-version: '0.2.0'
+# 플러그인 업데이트 시, 버전이 다르면 기존 파일이 백업되고 플러그인 기본값으로 교체됩니다.
+version: '0.2.1-dev'
 
 # General messages
 no_permission: "§c권한이 없습니다."
 invalid_subcommand: "§c잘못된 서브커맨드입니다."
-usage: "§e사용법: /librariandb [create|search|list|delete|edit-description]"
+usage: "§e사용법: /vet trade [create|search|list|delete|edit-description]"
 player_only: "§c이 명령어는 플레이어만 사용할 수 있습니다."
 click_to_show_particles: "§e클릭하여 이 위치에 파티클 표시"
 
 # Create command
-create_usage: "§e사용법: /librariandb create [description]"
+create_usage: "§e사용법: /vet trade create"
 invalid_enchant: "§c잘못된 인챈트 ID입니다."
 invalid_level: "§c레벨은 1에서 %d 사이여야 합니다."
 no_villager_nearby: "§c근처에 주민이 없습니다."
@@ -16,14 +17,14 @@ villager_trades_registered: "§a주민의 인챈트 거래가 등록되었습니
 no_enchant_trades: "§c이 주민은 인챈트 책 거래가 없습니다."
 
 # Search command
-search_usage: "§e사용법: /librariandb search <enchant>"
+search_usage: "§e사용법: /vet trade search <인챈트>"
 no_trades_found: "§c해당 인챈트의 거래가 없습니다."
 trade_info: "§6=== 거래 정보 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e설명: §f%s"
 
 # Find villager command
 findvillager_usage: "§e사용법: /findvillager <인챈트 이름 또는 ID>"
 no_found_trades: "§c근처 주민에게 해당 인챈트 거래가 없습니다."
-found_trade_info: "§6=== 발견된 거래 ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e영역: §f%s"
+found_trade_info: "§6=== 발견된 거래 #%d ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e설명: §f%s"
 
 # List command
 no_trades: "§c등록된 거래가 없습니다."
@@ -31,21 +32,26 @@ trade_list_header: "§6=== 등록된 거래 목록 ==="
 trade_list_entry: "§6=== 거래 #%d ===\n§e인챈트: §f%s %d\n§e가격: §f%d 에메랄드\n§e위치: §fX: %d, Y: %d, Z: %d\n§e설명: §f%s"
 
 # Delete command
-delete_usage: "§e사용법: /librariandb delete <id>"
+delete_usage: "§e사용법: /vet trade delete <id>"
 id_must_be_number: "§cID는 숫자여야 합니다."
 trade_deleted: "§a거래가 삭제되었습니다."
 
 # Edit description command
-edit_description_usage: "§e사용법: /librariandb edit-description <id> <description>"
+edit_description_usage: "§e사용법: /vet trade edit-description <id> <설명>"
 description_updated: "§a거래 설명이 수정되었습니다."
 trade_not_found: "§c거래를 찾을 수 없습니다."
+trade_clickable_enchant: "§e클릭하여 등록: %s %d (가격: %d 에메랄드)"
+trade_ask_description: "%s %d (가격: %d 에메랄드) 거래에 설명을 추가하시겠습니까?"
+trade_yes: "[예]"
+trade_no: "[아니오]"
 
 # Region commands
-region_usage: "§e사용법: /region [create|list|delete|scan]"
-region_create_usage: "§e사용법: /region create <이름> [x1 y1 z1 x2 y2 z2]"
-region_create_coords_usage: "§e사용법: /region create <이름> <x1> <y1> <z1> <x2> <y2> <z2>"
-region_delete_usage: "§e사용법: /region delete <id>"
-region_scan_usage: "§e사용법: /region scan <이름>"
+region_usage: "§e사용법: /vet region [create|list|delete|edit]"
+region_create_usage: "§e사용법: /vet region create <이름> [x1 y1 z1 x2 y2 z2]"
+region_create_coords_usage: "§e사용법: /vet region create <이름> <x1> <y1> <z1> <x2> <y2> <z2>"
+region_delete_usage: "§e사용법: /vet region delete <id>"
+region_edit_usage: "§e사용법: /vet region edit <id> <newName>"
+region_name_updated: "§a영역 이름이 '%1$s'로 수정되었습니다."
 worldedit_not_found: "§cWorldEdit 플러그인이 없습니다. 좌표 기반 영역 생성으로 전환합니다."
 no_selection: "§cWorldEdit 선택 영역이 없습니다. 좌표 기반 영역 생성으로 전환합니다."
 region_created: "§a영역 '%1$s'이(가) 생성되었습니다."
@@ -61,9 +67,9 @@ invalid_coordinates: "§c잘못된 좌표입니다. 유효한 숫자를 입력�
 
 # EVT Integration commands
 evtintegration_header: "§6=== EVT 통합 명령어 ==="
-evtintegration_nearby_usage: "§e/evtintegration nearby [반경]"
-evtintegration_region_usage: "§e/evtintegration region <지역이름/*>"
-nearby_usage: "§e사용법: /evtintegration nearby <반경>"
+evtintegration_nearby_usage: "§e/vet evt nearby [반경]"
+evtintegration_region_usage: "§e/vet evt region <지역이름/*>"
+nearby_usage: "§e사용법: /vet evt nearby <반경>"
 invalid_radius: "§c잘못된 반경입니다. 유효한 숫자를 입력해주세요."
 invalid_discount: "§c잘못된 할인금액입니다. 유효한 숫자를 입력해주세요."
 no_librarians_nearby: "§c%d블록 반경 내에 사서 주민이 없습니다!"
@@ -75,6 +81,27 @@ new_enchant_line: "§e[%s %d] "
 existing_enchant_line: "§a[%s %d - %d에메랄드] "
 price_component: "§7%d"
 price_hover: "§7클릭하여 실행: %s"
+
+# TUI messages
+tui_header: "§6§l=== 인챈트 거래 인터페이스 ==="
+tui_new_enchants_tab: "§a§l[새로운 인챈트]"
+tui_new_enchants_tab_inactive: "§7[새로운 인챈트]"
+tui_existing_enchants_tab: "§a§l[기존 인챈트]"
+tui_existing_enchants_tab_inactive: "§7[기존 인챈트]"
+tui_divider: "§8§m==========================================§r"
+tui_empty_line: "§8§m------------------------------------------§r"
+tui_nav_prev_active: "§a§l[<< 이전]"
+tui_nav_prev_inactive: "§8[<< 이전]"
+tui_nav_page: "§f§l%d§7/§f%d"
+tui_nav_next_active: "§a§l[다음 >>]"
+tui_nav_next_inactive: "§8[다음 >>]"
+tui_default_feedback: "§7가격을 클릭하여 인챈트를 검색에 추가하세요"
+tui_close_button: "§c§l[닫기]"
+tui_closed: "§7인터페이스가 닫혔습니다."
+tui_price_added_feedback: "§a✓ §f%s %d§7을(를) §e%d에메랄드§7로 검색에 추가했습니다"
+tui_enchant_header: "§e%-20s §f%-3s"
+tui_price_button: "§a[§f%d§a]"
+tui_price_button_hover: "§7%s %d을(를) §e%d에메랄드§7로 추가하려면 클릭하세요"
 
 # Enchant names
 enchantments:
@@ -120,24 +147,3 @@ enchantments:
   wind_burst: "돌풍"
   density: "육중"
   breach: "격파"
-
-# TUI messages
-tui_header: "§6§l=== 인챈트 거래 인터페이스 ==="
-tui_new_enchants_tab: "§a§l[새로운 인챈트]"
-tui_new_enchants_tab_inactive: "§7[새로운 인챈트]"
-tui_existing_enchants_tab: "§a§l[기존 인챈트]"
-tui_existing_enchants_tab_inactive: "§7[기존 인챈트]"
-tui_divider: "§8§m==========================================§r"
-tui_empty_line: "§8§m------------------------------------------§r"
-tui_nav_prev_active: "§a§l[<< 이전]"
-tui_nav_prev_inactive: "§8[<< 이전]"
-tui_nav_page: "§f§l%d§7/§f%d"
-tui_nav_next_active: "§a§l[다음 >>]"
-tui_nav_next_inactive: "§8[다음 >>]"
-tui_default_feedback: "§7가격을 클릭하여 인챈트를 검색에 추가하세요"
-tui_close_button: "§c§l[닫기]"
-tui_closed: "§7인터페이스가 닫혔습니다."
-tui_price_added_feedback: "§a✓ §f%s %d§7을(를) §e%d에메랄드§7로 검색에 추가했습니다"
-tui_enchant_header: "§e%-20s §f%-3s"
-tui_price_button: "§a[§f%d§a]"
-tui_price_button_hover: "§7%s %d을(를) §e%d에메랄드§7로 추가하려면 클릭하세요"

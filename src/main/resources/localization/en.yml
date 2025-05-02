@@ -1,14 +1,15 @@
-version: '0.2.0'
+# On plugin update, if the version differs, your file will be backed up and replaced with the plugin default.
+version: '0.2.1-dev'
 
 # General messages
 no_permission: "§cYou don't have permission to use this command."
 invalid_subcommand: "§cInvalid subcommand."
-usage: "§eUsage: /librariandb [create|search|list|delete|edit-description]"
+usage: "§eUsage: /vet trade [create|search|list|delete|edit-description]"
 player_only: "§cThis command can only be used by players."
 click_to_show_particles: "§eClick to show particles at this location"
 
 # Create command
-create_usage: "§eUsage: /librariandb create [description]"
+create_usage: "§eUsage: /vet trade create"
 invalid_enchant: "§cInvalid enchant ID."
 invalid_level: "§cLevel must be between 1 and %d."
 no_villager_nearby: "§cNo villager nearby."
@@ -16,14 +17,14 @@ villager_trades_registered: "§aVillager's enchant trades have been registered."
 no_enchant_trades: "§cThis villager has no enchant book trades."
 
 # Search command
-search_usage: "§eUsage: /librariandb search <enchant>"
+search_usage: "§eUsage: /vet trade search <enchant>"
 no_trades_found: "§cNo trades found for this enchant."
 trade_info: "§6=== Trade Information ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eDescription: §f%s"
 
 # Find villager command
 findvillager_usage: "§eUsage: /findvillager <enchantment name or id>"
 no_found_trades: "§cNo nearby villager has this enchant trade."
-found_trade_info: "§6=== Found Trade ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eRegion: §f%s"
+found_trade_info: "§6=== Found Trade #%d ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eDescription: §f%s"
 
 # List command
 no_trades: "§cNo trades registered."
@@ -31,21 +32,26 @@ trade_list_header: "§6=== Registered Trades ==="
 trade_list_entry: "§6=== Trade #%d ===\n§eEnchant: §f%s %d\n§ePrice: §f%d emeralds\n§eLocation: §fX: %d, Y: %d, Z: %d\n§eDescription: §f%s"
 
 # Delete command
-delete_usage: "§eUsage: /librariandb delete <id>"
+delete_usage: "§eUsage: /vet trade delete <id>"
 id_must_be_number: "§cID must be a number."
 trade_deleted: "§aTrade has been deleted."
 
 # Edit description command
-edit_description_usage: "§eUsage: /librariandb edit-description <id> <description>"
+edit_description_usage: "§eUsage: /vet trade edit-description <id> <description>"
 description_updated: "§aTrade description has been updated."
 trade_not_found: "§cTrade not found."
+trade_clickable_enchant: "§eClick to register: %s %d (Price: %d emeralds)"
+trade_ask_description: "Do you want to add a description for %s %d (Price: %d emeralds)?"
+trade_yes: "[Yes]"
+trade_no: "[No]"
 
 # Region commands
-region_usage: "§eUsage: /region [create|list|delete|scan]"
-region_create_usage: "§eUsage: /region create <name> [x1 y1 z1 x2 y2 z2]"
-region_create_coords_usage: "§eUsage: /region create <name> <x1> <y1> <z1> <x2> <y2> <z2>"
-region_delete_usage: "§eUsage: /region delete <id>"
-region_scan_usage: "§eUsage: /region scan <name>"
+region_usage: "§eUsage: /vet region [create|list|delete|edit]"
+region_create_usage: "§eUsage: /vet region create <name> [x1 y1 z1 x2 y2 z2]"
+region_create_coords_usage: "§eUsage: /vet region create <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+region_delete_usage: "§eUsage: /vet region delete <id>"
+region_edit_usage: "§eUsage: /vet region edit <id> <newName>"
+region_name_updated: "§aRegion name updated to '%1$s'."
 worldedit_not_found: "§cWorldEdit plugin not found. Using coordinate-based region creation."
 no_selection: "§cNo WorldEdit selection found. Using coordinate-based region creation."
 region_created: "§aRegion '%1$s' created successfully."
@@ -61,9 +67,9 @@ invalid_coordinates: "§cInvalid coordinates. Please provide valid numbers."
 
 # EVT Integration commands
 evtintegration_header: "§6=== EVT Integration Commands ==="
-evtintegration_nearby_usage: "§e/evtintegration nearby [radius]"
-evtintegration_region_usage: "§e/evtintegration region <regionName/*>"
-nearby_usage: "§eUsage: /evtintegration nearby <radius>"
+evtintegration_nearby_usage: "§e/vet evt nearby [radius]"
+evtintegration_region_usage: "§e/vet evt region <regionName/*>"
+nearby_usage: "§eUsage: /vet evt nearby <radius>"
 invalid_radius: "§cInvalid radius. Please enter a valid number."
 invalid_discount: "§cInvalid discount amount. Please enter a valid number."
 no_librarians_nearby: "§cNo librarian villagers found within %d blocks!"
@@ -75,6 +81,27 @@ new_enchant_line: "§e[%s %d] "
 existing_enchant_line: "§a[%s %d - $%d] "
 price_component: "§7%d"
 price_hover: "§7Click to execute: %s"
+
+# TUI messages
+tui_header: "§6§l=== Enchantment Trading Interface ==="
+tui_new_enchants_tab: "§a§l[New Enchants]"
+tui_new_enchants_tab_inactive: "§7[New Enchants]"
+tui_existing_enchants_tab: "§a§l[Existing Enchants]"
+tui_existing_enchants_tab_inactive: "§7[Existing Enchants]"
+tui_divider: "§8§m==========================================§r"
+tui_empty_line: "§8§m------------------------------------------§r"
+tui_nav_prev_active: "§a§l[<< Prev]"
+tui_nav_prev_inactive: "§8[<< Prev]"
+tui_nav_page: "§f§l%d§7/§f%d"
+tui_nav_next_active: "§a§l[Next >>]"
+tui_nav_next_inactive: "§8[Next >>]"
+tui_default_feedback: "§7Click on a price to add the enchantment to your search"
+tui_close_button: "§c§l[Close]"
+tui_closed: "§7Interface closed."
+tui_price_added_feedback: "§a✓ Added §f%s %d §7for §e%d emeralds §7to search"
+tui_enchant_header: "§e%-20s §f%-3s"
+tui_price_button: "§a[§f%d§a]"
+tui_price_button_hover: "§7Click to add §f%s %d §7for §e%d emeralds"
 
 # Enchant names
 enchantments:
@@ -120,24 +147,3 @@ enchantments:
   wind_burst: "Wind Burst"
   density: "Density"
   breach: "Breach"
-
-# TUI messages
-tui_header: "§6§l=== Enchantment Trading Interface ==="
-tui_new_enchants_tab: "§a§l[New Enchants]"
-tui_new_enchants_tab_inactive: "§7[New Enchants]"
-tui_existing_enchants_tab: "§a§l[Existing Enchants]"
-tui_existing_enchants_tab_inactive: "§7[Existing Enchants]"
-tui_divider: "§8§m==========================================§r"
-tui_empty_line: "§8§m------------------------------------------§r"
-tui_nav_prev_active: "§a§l[<< Prev]"
-tui_nav_prev_inactive: "§8[<< Prev]"
-tui_nav_page: "§f§l%d§7/§f%d"
-tui_nav_next_active: "§a§l[Next >>]"
-tui_nav_next_inactive: "§8[Next >>]"
-tui_default_feedback: "§7Click on a price to add the enchantment to your search"
-tui_close_button: "§c§l[Close]"
-tui_closed: "§7Interface closed."
-tui_price_added_feedback: "§a✓ Added §f%s %d §7for §e%d emeralds §7to search"
-tui_enchant_header: "§e%-20s §f%-3s"
-tui_price_button: "§a[§f%d§a]"
-tui_price_button_hover: "§7Click to add §f%s %d §7for §e%d emeralds"

@@ -1,9 +1,6 @@
 package org.teamck.villagerEnchantTracker.commands;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.teamck.villagerEnchantTracker.core.VillagerEnchantTracker;
@@ -18,29 +15,28 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
+public class VETEVTCommand {
     private final VillagerEnchantTracker plugin;
     private final Database database;
     private final MessageManager messageManager;
     private final Logger logger;
     private final Map<UUID, EnchantmentTUI> activeTUIs = new HashMap<>();
 
-    public EVTIntegrationCommand(VillagerEnchantTracker plugin, Database database) {
+    public VETEVTCommand(VillagerEnchantTracker plugin, Database database) {
         this.plugin = plugin;
         this.database = database;
         this.messageManager = MessageManager.getInstance();
         this.logger = plugin.getLogger();
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean executeCommand(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(messageManager.getMessage("player_only", "en"));
+            sender.sendMessage(messageManager.getMessage("player_only", sender));
             return true;
         }
 
         if (!player.hasPermission("villagerenchanttracker.use")) {
-            player.sendMessage(messageManager.getChatMessage("no_permission", player));
+            player.sendMessage(messageManager.getMessage("no_permission", player));
             return true;
         }
 
@@ -49,7 +45,8 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        logCommand(player, label, args);
+        logger.info(String.format("Player %s executed EVT integration command: %s",
+                player.getName(), String.join(" ", args)));
 
         if (args[0].equalsIgnoreCase("tui")) {
             return handleTUICommand(player, args);
@@ -61,38 +58,39 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
             default -> {
                 sendUsage(player);
                 yield true;
-        }
+            }
         };
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!(sender instanceof Player)) {
+    public List<String> getTabCompletions(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player) || !player.hasPermission("villagerenchanttracker.use")) {
             return new ArrayList<>();
         }
 
         return switch (args.length) {
-            case 1 -> getCompletions(args[0], Arrays.asList("nearby", "region"));
+            case 1 -> getCompletions(args[0], Arrays.asList("nearby", "region", "tui"));
             case 2 -> getSecondArgumentCompletions(args[0], args[1]);
+            case 3 -> args[0].toLowerCase().equals("tui") ? getCompletions(args[2], Arrays.asList("toggle", "next", "prev", "close", "feedback")) : new ArrayList<>();
             default -> new ArrayList<>();
         };
     }
 
     private List<String> getSecondArgumentCompletions(String command, String input) {
-        if (command.equalsIgnoreCase("region")) {
-            List<String> completions = new ArrayList<>();
+        return switch (command.toLowerCase()) {
+            case "region" -> {
+                List<String> completions = new ArrayList<>();
                 if ("*".startsWith(input)) {
                     completions.add("*");
                 }
                 database.listRegions().stream()
                         .map(VillagerRegion::getName)
-                    .filter(name -> name.toLowerCase().startsWith(input.toLowerCase()))
+                        .filter(name -> name.toLowerCase().startsWith(input.toLowerCase()))
                         .forEach(completions::add);
-            return completions;
-        } else if (command.equalsIgnoreCase("nearby")) {
-            return getCompletions(input, Arrays.asList("5", "10", "15", "20", "25", "30"));
-        }
-        return new ArrayList<>();
+                yield completions;
+            }
+            case "nearby" -> getCompletions(input, Arrays.asList("5", "10", "15", "20", "25", "30"));
+            default -> new ArrayList<>();
+        };
     }
 
     private List<String> getCompletions(String input, List<String> possibilities) {
@@ -105,7 +103,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         logDebug("Player %s executing nearby command", player.getName());
             
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("nearby_usage", player));
+            player.sendMessage(messageManager.getMessage("nearby_usage", player));
             return true;
         }
 
@@ -115,7 +113,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         List<Villager> librarians = findNearbyLibrarians(player, radius);
         if (librarians.isEmpty()) {
             logDebug("No librarians found for player %s within %d blocks", player.getName(), radius);
-            player.sendMessage(messageManager.format("no_librarians_nearby", player, radius));
+            player.sendMessage(String.format(messageManager.getMessage("no_librarians_nearby", player), radius));
             return true;
         }
 
@@ -129,13 +127,13 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         logDebug("Player %s executing region command", player.getName());
             
         if (args.length < 2) {
-            player.sendMessage(messageManager.getChatMessage("region_usage", player));
+            player.sendMessage(messageManager.getMessage("region_usage", player));
             return true;
         }
 
         List<VillagerRegion> regions = getSelectedRegions(player, args[1]);
         if (regions.isEmpty()) {
-            player.sendMessage(messageManager.getChatMessage("no_regions", player));
+            player.sendMessage(messageManager.getMessage("no_regions", player));
             logWarning("No regions found in database");
             return true;
         }
@@ -143,7 +141,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         EnchantmentData enchantData = collectRegionEnchantmentData(regions, player);
         if (enchantData.totalLibrarians == 0) {
             logDebug("No librarians found in any selected region for player %s", player.getName());
-            player.sendMessage(messageManager.getChatMessage("no_librarians_in_region", player));
+            player.sendMessage(messageManager.getMessage("no_librarians_in_region", player));
             return true;
         }
 
@@ -171,9 +169,9 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendUsage(Player player) {
-        player.sendMessage(messageManager.getChatMessage("evtintegration_header", player));
-        player.sendMessage(messageManager.getChatMessage("evtintegration_nearby_usage", player));
-        player.sendMessage(messageManager.getChatMessage("evtintegration_region_usage", player));
+        player.sendMessage(messageManager.getMessage("evtintegration_header", player));
+        player.sendMessage(messageManager.getMessage("evtintegration_nearby_usage", player));
+        player.sendMessage(messageManager.getMessage("evtintegration_region_usage", player));
     }
 
     private int parseRadius(Player player, String radiusStr) {
@@ -182,7 +180,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
             logDebug("Searching with radius: %d", radius);
             return radius;
         } catch (NumberFormatException e) {
-            player.sendMessage(messageManager.getChatMessage("invalid_radius", player));
+            player.sendMessage(messageManager.getMessage("invalid_radius", player));
             logWarning("Invalid radius provided: %s", radiusStr);
             return -1;
         }
@@ -203,7 +201,7 @@ public class EVTIntegrationCommand implements CommandExecutor, TabCompleter {
         } else {
             VillagerRegion region = database.getRegionByName(regionName);
             if (region == null) {
-                player.sendMessage(messageManager.getChatMessage("region_not_found", player));
+                player.sendMessage(messageManager.getMessage("region_not_found", player));
                 logWarning("Region not found: %s", regionName);
                 return new ArrayList<>();
             }

@@ -9,8 +9,7 @@ import java.util.List;
 
 public interface Database {
     void init();
-    void createTrade(String enchantId, int level, int price, Location location, String description);
-    boolean addVillagerTrades(Villager villager, String description);
+    boolean addTrade(Trade trade);
     List<Trade> searchTrades(String enchantId);
     List<Trade> listTrades();
     void deleteTrade(int id);
@@ -23,4 +22,6 @@ public interface Database {
     VillagerRegion getRegion(int id);
     VillagerRegion getRegionByName(String name);
     List<Trade> getTradesInRegion(int regionId);
+    List<Trade> getTradesByVillager(String villagerUuid);
+    boolean updateRegionName(int id, String newName);
 } 
