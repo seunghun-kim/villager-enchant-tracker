@@ -1,124 +1,71 @@
-# Minecraft Villager Enchant Tracker
+# Villager Enchant Tracker
 
-A Minecraft plugin for managing and tracking librarian villager enchantment trades.
+A Minecraft plugin for tracking villager enchantment trades across your server.
 
 https://github.com/user-attachments/assets/4098bd03-362b-4079-b558-4b7bf99ae9cc
 
 ## Features
 
-- Register and manage librarian villager enchantment trades
-- Search for specific enchantments and track their locations
-- Visual location indicators using particle effects
-- Region-based villager trade management
-- Integration with EasyVillagerTrade mod
-- Text User Interface (TUI) for enchantment management
-- Multi-language support (English, Korean)
-
-## Commands
-
-### `/librariandb`
-- `create <description>`: Register enchantment trades from a nearby librarian villager
-- `search <enchantment>`: Search for villagers selling a specific enchantment
-- `list`: Display all registered enchantment trades
-- `delete <ID>`: Delete a specific trade entry
-- `edit-description <ID> <description>`: Edit the description of a trade entry
-
-### `/findvillager <enchantment>`
-- Find nearby librarian villagers with specific enchantments and mark them with particles
-- Searches both registered trades and nearby villagers within 50 blocks
-- Shows clickable location messages with particle effects
-
-### `/villagerregion`
-- `create <name> [x1 y1 z1 x2 y2 z2]`: Create a new region for villager trade tracking (supports WorldEdit selection)
-- `list`: List all registered regions
-- `delete <ID>`: Delete a region
-- `scan <regionName>`: Scan and register all librarian trades in the specified region
-
-### `/evtintegration`
-- [EVT (EasyVillagerTrade)](https://modrinth.com/mod/easyvillagertrade) integration with TUI interface
-- `nearby <radius>`: Find and manage nearby librarian trades with TUI
-- `region <regionName/*>`: Manage trades in specified region(s) with TUI
-- Interactive TUI features:
-  - Toggle between new and existing enchants
-  - Multiple price options for each enchant
-  - Pagination for large lists
-  - Click-to-add functionality
-
-## Permissions
-
-- `villagerenchanttracker.use`: Basic permission for searching enchantments and using EVT integration
-- `villagerenchanttracker.admin`: Admin permission for managing trades and regions
-- `findvillager.use`: Permission for using findvillager command
-- `region.admin`: Permission for managing regions
-- `librariandb.use`: Permission for using librariandb command
+- **Track Villager Trades**: Register and manage enchantment trades from villagers.
+- **Search Enchantments**: Find specific enchantments offered by villagers nearby or in your database.
+- **Region Management**: Define regions to organize villager trades by location.
+- **Particle Guidance**: Visual indicators to guide you to villager locations.
+- **Enchantment TUI**: Text-based user interface for easy enchantment management.
+- **EasyVillagerTrade Integration**: Scan and manage enchantment trades with the [EasyVillagerTrade](https://modrinth.com/mod/easyvillagertrade) mod.
 
 ## Installation
 
-1. Copy the plugin JAR file to your server's `plugins` folder
-2. Restart your server
-3. Check the configuration files in the `plugins/VillagerEnchantTracker` folder
+1. Download the latest version of the plugin from the releases page.
+2. Place the `.jar` file in your server's `plugins` folder.
+3. Restart your server to load the plugin.
+
+## Core Functionality: Finding Villagers with Specific Enchantments
+
+If you're looking for a quick and simple way to locate villagers offering specific enchantments without the need for region management or trade registration, the `/findvillager` command is all you need. This core feature allows you to:
+- Search for nearby villagers with a specific enchantment.
+- View the region name if the villager is located within a defined region.
+- Use particle effects to visually guide you to the villager's location.
+
+This command is perfect for players who want to focus on finding enchantment trades without managing a database of trades or regions.
+
+## Commands
+
+- **`/findvillager <enchantment>`**: Find nearby villagers offering a specific enchantment. If the villager is in a region, the region name will be displayed.
+- **`/vet trade`**: Manage villager trades.
+  - `/vet trade create` - Register trades from the closest villager.
+  - `/vet trade search <enchantment>` - Search for specific enchantment trades.
+  - `/vet trade list` - List all registered trades.
+  - `/vet trade delete <id>` - Delete a specific trade.
+- **`/vet region`**: Manage regions for organizing trades.
+  - `/vet region create <name> [x1 y1 z1 x2 y2 z2]` - Create a region with a name and optional coordinates. (supports WorldEdit selection)
+  - `/vet region list` - List all defined regions.
+  - `/vet region delete <id>` - Delete a specific region.
+  - `/vet region edit <id> <newName>` - Edit the name of a specific region.
+- **`/vet evt`**: Integration commands for [EasyVillagerTrade](https://modrinth.com/mod/easyvillagertrade).
+  - `/vet evt nearby <radius>` - Scan enchantment trades of nearby villagers within the specified radius.
+  - `/vet evt region <regionName/*>` - Scan enchantment trades of villagers in a specific region or all regions.
+
+**EasyVillagerTrade Integration Features**:
+- Scan and display enchantment trades from nearby villagers or within specific regions.
+- Results are categorized into enchantments not sold by villagers (highest level only) and enchantments currently sold by villagers.
+- Click on the displayed [New Price] in the chat to automatically input the `/evt search add <price> <enchantment> [<level>]` command.
+- Allows users to add missing enchantments to EVT or find lower prices for existing enchantments.
+
+## Permissions
+
+- `villagerenchanttracker.use` - Allows use of read-only features (search, list, etc). Default: true
+- `villagerenchanttracker.write` - Allows use of write features (create, delete, edit, etc). Default: op
 
 ## Configuration
 
-The plugin can be configured through the `config.yml` file:
+The plugin configuration file is located at `plugins/VillagerEnchantTracker/config.yml`. You can customize particle effects and other settings here.
 
-### Particle Settings
-```yaml
-particles:
-  # Particle type, height, count
-  - type: "HAPPY_VILLAGER"
-    height: 20
-    count: 10
-  - type: "ENCHANT"
-    height: 20
-    count: 10
-  - type: "END_ROD"
-    height: 20
-    count: 5
-  - type: "DRAGON_BREATH"
-    height: 20
-    count: 5
-```
+Language files are located in `plugins/VillagerEnchantTracker/localization/`. You can modify existing translations or add new ones by copying the format of existing language files.
 
-### Particle Duration and Interval
-```yaml
-particle-duration: 30    # Duration in seconds
-particle-interval: 1     # Spawn interval in seconds
-```
+## Dependencies
 
-### Particle Effect Settings
-```yaml
-particle-effects:
-  show-pillar: true      # Show particle pillar at villager location
-  show-line: true        # Show particle line between player and villager
-  line-points: 20        # Number of points in the particle line
-  line-update-interval: 0.1  # Line update interval in seconds
-```
-
-## Changelog
-
-### 0.3.0
-- Added [EVT (EasyVillagerTrade)](https://modrinth.com/mod/easyvillagertrade) integration with TUI interface
-- Added interactive Text User Interface (TUI) for enchantment management
-- Added region scanning functionality with `/villagerregion scan`
-- Enhanced search to include both registered and nearby villagers
-- Added clickable chat messages for better interaction
-- Improved permission system with more granular controls
-- Removed language settings from config.yml (now uses client locale)
-- Code refactoring and package reorganization
-- Added support for new enchantments (Wind Burst, Density, Breach)
-
-### 0.2.0
-- Added region-based villager trade management with `/villagerregion` command
-- Enhanced `/findvillager` command to search for specific enchantments
-- Added WorldEdit integration for region selection
-- Added basic user permission (`villagerenchanttracker.use`)
-
-### 0.1.0
-- Initial release
-- Basic villager trade management
-- Enchantment search functionality
-- Particle effect visualization
+- **WorldEdit** (optional) - For region selection support.
+- **EasyVillagerTrade** (optional) - For enhanced villager trading integration on the client-side.
 
 ## License
 
