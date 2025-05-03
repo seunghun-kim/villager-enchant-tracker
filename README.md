@@ -67,6 +67,29 @@ Language files are located in `plugins/VillagerEnchantTracker/localization/`. Yo
 - **WorldEdit** (optional) - For region selection support.
 - **EasyVillagerTrade** (optional) - For enhanced villager trading integration on the client-side.
 
+## Changelog
+
+### 0.3.0
+- Added [EasyVillagerTrade](https://modrinth.com/mod/easyvillagertrade) integration with TUI interface.
+- Added interactive Text User Interface (TUI) for enchantment management.
+- Enhanced search to include both registered and nearby villagers.
+- Added clickable chat messages for better interaction.
+- Added support for new enchantments.
+- Unified all commands under `/vet` for better organization.
+- Fixed issues with region creation involving spaces in names and coordinate handling.
+
+### 0.2.0
+- Added region-based villager trade management with `/villagerregion` command.
+- Enhanced `/findvillager` command to search for specific enchantments.
+- Added WorldEdit integration for region selection.
+- Added basic user permission (`villagerenchanttracker.use`).
+
+### 0.1.0
+- Initial release.
+- Basic villager trade management.
+- Enchantment search functionality.
+- Particle effect visualization.
+
 ## License
 
 This project is licensed under the MIT License. 

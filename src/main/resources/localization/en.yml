@@ -1,5 +1,5 @@
 # On plugin update, if the version differs, your file will be backed up and replaced with the plugin default.
-version: '0.2.1-dev'
+version: '0.3.0'
 
 # General messages
 no_permission: "§cYou don't have permission to use this command."
