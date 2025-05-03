@@ -11,6 +11,10 @@ import org.teamck.villagerEnchantTracker.manager.ParticleManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Villager;
 
 public class VETCommand implements CommandExecutor, TabCompleter {
     private final JavaPlugin plugin;
@@ -40,24 +44,39 @@ public class VETCommand implements CommandExecutor, TabCompleter {
         String subCommand = args[0].toLowerCase();
         String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
 
-        // Handle /vet particle <x> <y> <z>
+        // Handle /vet particle <x> <y> <z> or /vet particle <villager_uuid>
         if (subCommand.equals("particle")) {
             if (!(sender instanceof Player player)) {
                 sender.sendMessage("§cThis command can only be used by players.");
                 return true;
             }
-            if (args.length < 4) {
-                player.sendMessage("§cUsage: /vet particle <x> <y> <z>");
+            if (args.length < 2) {
+                player.sendMessage("§cUsage: /vet particle <x> <y> <z> or /vet particle <villager_uuid>");
                 return true;
             }
             try {
-                double x = Double.parseDouble(args[1]);
-                double y = Double.parseDouble(args[2]);
-                double z = Double.parseDouble(args[3]);
-                Location loc = new Location(player.getWorld(), x, y, z);
-                particleManager.spawnParticles(loc, player, true);
+                if (args.length == 4) {
+                    double x = Double.parseDouble(args[1]);
+                    double y = Double.parseDouble(args[2]);
+                    double z = Double.parseDouble(args[3]);
+                    Location loc = new Location(player.getWorld(), x, y, z);
+                    particleManager.spawnParticles(loc, player, true);
+                } else if (args.length == 2) {
+                    UUID villagerUuid = UUID.fromString(args[1]);
+                    Entity entity = Bukkit.getEntity(villagerUuid);
+                    if (entity instanceof Villager villager) {
+                        Location loc = villager.getLocation();
+                        particleManager.spawnParticles(loc, player, true);
+                    } else {
+                        player.sendMessage("§cVillager not found with UUID: " + args[1]);
+                    }
+                } else {
+                    player.sendMessage("§cUsage: /vet particle <x> <y> <z> or /vet particle <villager_uuid>");
+                }
             } catch (NumberFormatException e) {
                 sender.sendMessage("§cCoordinates must be numbers.");
+            } catch (IllegalArgumentException e) {
+                sender.sendMessage("§cInvalid UUID format.");
             }
             return true;
         }

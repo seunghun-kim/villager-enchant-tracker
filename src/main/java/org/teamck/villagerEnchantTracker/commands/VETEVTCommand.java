@@ -131,7 +131,8 @@ public class VETEVTCommand {
             return true;
         }
 
-        List<VillagerRegion> regions = getSelectedRegions(player, args[1]);
+        String regionName = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        List<VillagerRegion> regions = getSelectedRegions(player, regionName);
         if (regions.isEmpty()) {
             player.sendMessage(messageManager.getMessage("no_regions", player));
             logWarning("No regions found in database");

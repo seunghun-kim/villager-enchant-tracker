@@ -34,7 +34,7 @@ public class VETTradeCommand {
     private final MessageManager messageManager;
     private final JavaPlugin plugin;
     private final ParticleManager particleManager;
-    private static final List<String> SUBCOMMANDS = Arrays.asList("create", "search", "list", "delete", "edit-description", "confirm", "register", "description");
+    private static final List<String> SUBCOMMANDS = Arrays.asList("create", "search", "list", "delete", "edit-description");  // subcommands not listed here are internal commands
 
     public VETTradeCommand(Database db, MessageManager messageManager, JavaPlugin plugin) {
         this.db = db;
@@ -100,7 +100,6 @@ public class VETTradeCommand {
             case "search" -> args.length == 2 ? messageManager.getEnchantNames(baseLanguage).stream()
                     .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
                     .collect(Collectors.toList()) : new ArrayList<>();
-            case "create" -> args.length >= 2 ? List.of("<description>") : new ArrayList<>();
             case "edit-description" -> {
                 if (args.length == 2) yield List.of("<id>");
                 else if (args.length >= 3) yield List.of("<description>");

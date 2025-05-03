@@ -101,8 +101,27 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
 
         // Search both database and nearby villagers
         List<Trade> trades = new ArrayList<>();
-        trades.addAll(db.searchTrades(enchantId));
-        trades.addAll(searchNearbyVillagerTrades(player, enchantId, DEFAULT_RADIUS));
+        List<Trade> dbTrades = db.searchTrades(enchantId);
+        List<Trade> nearbyTrades = searchNearbyVillagerTrades(player, enchantId, DEFAULT_RADIUS);
+        
+        // Add database trades first
+        trades.addAll(dbTrades);
+        
+        // Add nearby trades only if they are not already in the database trades
+        for (Trade nearbyTrade : nearbyTrades) {
+            boolean isDuplicate = false;
+            for (Trade dbTrade : dbTrades) {
+                if (dbTrade.getVillagerUuid().equals(nearbyTrade.getVillagerUuid()) && 
+                    dbTrade.getEnchantId().equals(nearbyTrade.getEnchantId()) && 
+                    dbTrade.getLevel() == nearbyTrade.getLevel()) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                trades.add(nearbyTrade);
+            }
+        }
 
         if (trades.isEmpty()) {
             player.sendMessage(messageManager.getMessage("no_found_trades", player));
@@ -115,6 +134,10 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
             Trade trade = trades.get(i);
             String localName = messageManager.getEnchantName(enchantId, messageManager.getBaseLanguageCode(player.getLocale()));
             Location loc = trade.getLocation();
+            if (loc == null) {
+                player.sendMessage(String.format(messageManager.getMessage("found_trade_info_no_location", player), i + 1, localName, trade.getLevel(), trade.getPrice()));
+                continue;
+            }
             String message = String.format(messageManager.getMessage("found_trade_info", player),
                     i + 1, // 거래 번호 (1부터 시작)
                     localName, trade.getLevel(),
@@ -122,9 +145,9 @@ public class FindVillagerCommand implements CommandExecutor, TabCompleter {
                     loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
                     trade.getRegionName() != null ? trade.getRegionName() : "");
             
-            // Create clickable message
+            // Create clickable message using villager_uuid
             TextComponent textComponent = new TextComponent(message);
-            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/vet particle " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
+            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/vet particle " + trade.getVillagerUuid()));
             player.spigot().sendMessage(textComponent);
             
             // Spawn particles immediately for search results. If there are multiple results, they will be spawned simultaneously.
